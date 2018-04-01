@@ -66,7 +66,7 @@ public final class ProcessorTest {
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
             .generatedSourceFile("AnInterfaceWrap")
-            .containsElementsIn(
+            .hasSourceEquivalentTo(
                 JavaFileObjects.forSourceLines(
                     "AnInterfaceWrap",
                     "public abstract class AnInterfaceWrap implements AnInterface {",
