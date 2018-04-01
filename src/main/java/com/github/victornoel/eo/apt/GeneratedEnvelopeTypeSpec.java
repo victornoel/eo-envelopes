@@ -1,5 +1,5 @@
 /**
- * EO-Wraps
+ * EO-Envelopes
  * Copyright (C) 2018  Victor Noël
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.victornoel.eo.wrap;
+package com.github.victornoel.eo.apt;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.CodeBlock.Builder;
@@ -35,16 +35,16 @@ import org.cactoos.Scalar;
 import org.cactoos.iterable.IterableEnvelope;
 import org.cactoos.iterable.Mapped;
 
-public final class GeneratedTypeSpec implements Scalar<TypeSpec> {
+public final class GeneratedEnvelopeTypeSpec implements Scalar<TypeSpec> {
 
     private final TypeElement source;
     private final Scalar<String> name;
 
-    public GeneratedTypeSpec(final TypeElement source) {
-        this(source, new GeneratedClassName(source));
+    public GeneratedEnvelopeTypeSpec(final TypeElement source) {
+        this(source, new GeneratedEnvelopeName(source));
     }
 
-    public GeneratedTypeSpec(final TypeElement source,
+    public GeneratedEnvelopeTypeSpec(final TypeElement source,
         final Scalar<String> name) {
         this.source = source;
         this.name = name;

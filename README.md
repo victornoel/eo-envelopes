@@ -1,4 +1,4 @@
-# Elegant Objects Wrap
+# Elegant Objects Envelopes
 
 Distributed under the GPL3 but don't forget the generated code is not covered by the license.
 
@@ -10,7 +10,7 @@ See http://www.yegor256.com/2017/01/31/decorating-envelopes.html for an explanat
 
 Enable Annotation Processing in your IDE to take advantage of it during development.
 
-Simply annotate your interfaces with `@GenerateWrap` and a `Wrap` class will be generated for it.
+Simply annotate your interfaces with `@GenerateEnvelope` and an envelope class will be generated for it.
 You can now extend it to write a decorating envelope without managing the delegation yourself.
 
 ## What
@@ -18,9 +18,9 @@ You can now extend it to write a decorating envelope without managing the delega
 ```java
 package test;
 
-import com.github.victornoel.eo.GenerateWrap;
+import com.github.victornoel.eo.GenerateEnvelope;
 
-@GenerateWrap
+@GenerateEnvelope
 public interface Test {
     String lol(int ab);
     void lol(Double a) throws Exception;
@@ -37,10 +37,10 @@ import java.lang.Exception;
 import java.lang.Override;
 import java.lang.String;
 
-public abstract class TestWrap implements Test {
+public abstract class TestEnvelope implements Test {
   protected final Test wrapped;
 
-  public TestWrap(Test wrapped) {
+  public TestEnvelope(Test wrapped) {
     this.wrapped = wrapped;
   }
 
@@ -61,11 +61,11 @@ Inner interfaces are also supported:
 ```java
 package test;
 
-import com.github.victornoel.eo.GenerateWrap;
+import com.github.victornoel.eo.GenerateEnvelope;
 
 public class AClass {
 
-    @GenerateWrap
+    @GenerateEnvelope
     public interface Test {
         
         String lol(int ab);
@@ -85,10 +85,10 @@ import java.lang.Exception;
 import java.lang.Override;
 import java.lang.String;
 
-public abstract class AClassTestWrap implements AClass.Test {
+public abstract class AClassTestEnvelope implements AClass.Test {
   protected final AClass.Test wrapped;
 
-  public AClassTestWrap(AClass.Test wrapped) {
+  public AClassTestEnvelope(AClass.Test wrapped) {
     this.wrapped = wrapped;
   }
 

@@ -1,5 +1,5 @@
 /**
- * EO-Wraps
+ * EO-Envelopes
  * Copyright (C) 2018  Victor Noël
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.victornoel.eo.wrap;
+package com.github.victornoel.eo.apt;
 
+import com.github.victornoel.eo.apt.GenerateEnvelopeProcessor;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.CompilationSubject;
 import com.google.testing.compile.Compiler;
@@ -24,12 +25,12 @@ import com.google.testing.compile.JavaFileObjects;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-public final class ProcessorTest {
+public final class GenerateEnvelopeProcessorTest {
 
     @Test
     public void nothing() {
         final Compilation compilation = Compiler.javac()
-            .withProcessors(new Processor())
+            .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
                 JavaFileObjects.forSourceLines(
                     "AnInterface",
@@ -41,12 +42,12 @@ public final class ProcessorTest {
     @Test
     public void noClass() {
         final Compilation compilation = Compiler.javac()
-            .withProcessors(new Processor())
+            .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
                 JavaFileObjects.forSourceLines(
                     "AClass",
-                    "import com.github.victornoel.eo.GenerateWrap;",
-                    "@GenerateWrap",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
                     "public class AClass {}"));
         CompilationSubject.assertThat(compilation).failed();
         CompilationSubject.assertThat(compilation)
@@ -56,22 +57,22 @@ public final class ProcessorTest {
     @Test
     public void nameModifiersAndField() {
         final Compilation compilation = Compiler.javac()
-            .withProcessors(new Processor())
+            .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
                 JavaFileObjects.forSourceLines(
                     "AnInterface",
-                    "import com.github.victornoel.eo.GenerateWrap;",
-                    "@GenerateWrap",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
                     "public interface AnInterface {}"));
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
-            .generatedSourceFile("AnInterfaceWrap")
+            .generatedSourceFile("AnInterfaceEnvelope")
             .hasSourceEquivalentTo(
                 JavaFileObjects.forSourceLines(
-                    "AnInterfaceWrap",
-                    "public abstract class AnInterfaceWrap implements AnInterface {",
+                    "AnInterfaceEnvelope",
+                    "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
-                    "  public AnInterfaceWrap(AnInterface wrapped) {",
+                    "  public AnInterfaceEnvelope(AnInterface wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
                     "}"));
@@ -80,49 +81,49 @@ public final class ProcessorTest {
     @Test
     public void packagePreserved() {
         final Compilation compilation = Compiler.javac()
-            .withProcessors(new Processor())
+            .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
                 JavaFileObjects.forSourceLines(
                     "a.complex.pkg.AnInterface",
                     "package a.complex.pkg;",
-                    "import com.github.victornoel.eo.GenerateWrap;",
-                    "@GenerateWrap",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
                     "public interface AnInterface {}"));
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
-            .generatedSourceFile("a.complex.pkg.AnInterfaceWrap")
+            .generatedSourceFile("a.complex.pkg.AnInterfaceEnvelope")
             .containsElementsIn(
                 JavaFileObjects.forSourceLines(
-                    "a.complex.package.AnInterfaceWrap",
+                    "a.complex.package.AnInterfaceEnvelope",
                     "package a.complex.pkg;",
-                    "public abstract class AnInterfaceWrap implements AnInterface {",
+                    "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "}"));
     }
 
     @Test
     public void innerInterfaceNamePreserved() {
         final Compilation compilation = Compiler.javac()
-            .withProcessors(new Processor())
+            .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
                 JavaFileObjects.forSourceLines(
                     "AClass",
                     "package a.pkg;",
-                    "import com.github.victornoel.eo.GenerateWrap;",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
                     "public class AClass {",
-                    "  @GenerateWrap",
+                    "  @GenerateEnvelope",
                     "  public interface AnInnerInterface {}",
                     "}"));
         CompilationSubject.assertThat(compilation)
             .succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
-            .generatedSourceFile("a.pkg.AClassAnInnerInterfaceWrap")
+            .generatedSourceFile("a.pkg.AClassAnInnerInterfaceEnvelope")
             .hasSourceEquivalentTo(
                 JavaFileObjects.forSourceLines(
-                    "a.pkg.AClassAnInnerInterfaceWrap",
+                    "a.pkg.AClassAnInnerInterfaceEnvelope",
                     "package a.pkg",
-                    "public abstract class AClassAnInnerInterfaceWrap implements AClass.AnInnerInterface {",
+                    "public abstract class AClassAnInnerInterfaceEnvelope implements AClass.AnInnerInterface {",
                     "  protected final AClass.AnInnerInterface wrapped;",
-                    "  public AClassAnInnerInterfaceWrap(AClass.AnInnerInterface wrapped) {",
+                    "  public AClassAnInnerInterfaceEnvelope(AClass.AnInnerInterface wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
                     "}"));
@@ -131,25 +132,25 @@ public final class ProcessorTest {
     @Test
     public void overridesVoidMethod() {
         final Compilation compilation = Compiler.javac()
-            .withProcessors(new Processor())
+            .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
                 JavaFileObjects.forSourceLines(
                     "AnInterface",
-                    "import com.github.victornoel.eo.GenerateWrap;",
-                    "@GenerateWrap",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
                     "public interface AnInterface {",
                     "  void test();",
                     "}"));
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
-            .generatedSourceFile("AnInterfaceWrap")
+            .generatedSourceFile("AnInterfaceEnvelope")
             .hasSourceEquivalentTo(
                 JavaFileObjects.forSourceLines(
-                    "AnInterfaceWrap",
+                    "AnInterfaceEnvelope",
                     "import java.lang.Override;",
-                    "public abstract class AnInterfaceWrap implements AnInterface {",
+                    "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
-                    "  public AnInterfaceWrap(AnInterface wrapped) {",
+                    "  public AnInterfaceEnvelope(AnInterface wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
                     "  @Override",
@@ -162,26 +163,26 @@ public final class ProcessorTest {
     @Test
     public void overridesMethodWithException() {
         final Compilation compilation = Compiler.javac()
-            .withProcessors(new Processor())
+            .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
                 JavaFileObjects.forSourceLines(
                     "AnInterface",
-                    "import com.github.victornoel.eo.GenerateWrap;",
-                    "@GenerateWrap",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
                     "public interface AnInterface {",
                     "  void test() throws Exception;",
                     "}"));
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
-            .generatedSourceFile("AnInterfaceWrap")
+            .generatedSourceFile("AnInterfaceEnvelope")
             .hasSourceEquivalentTo(
                 JavaFileObjects.forSourceLines(
-                    "AnInterfaceWrap",
+                    "AnInterfaceEnvelope",
                     "import java.lang.Exception;",
                     "import java.lang.Override;",
-                    "public abstract class AnInterfaceWrap implements AnInterface {",
+                    "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
-                    "  public AnInterfaceWrap(AnInterface wrapped) {",
+                    "  public AnInterfaceEnvelope(AnInterface wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
                     "  @Override",
@@ -194,26 +195,26 @@ public final class ProcessorTest {
     @Test
     public void overridesMethodWithReturnType() {
         final Compilation compilation = Compiler.javac()
-            .withProcessors(new Processor())
+            .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
                 JavaFileObjects.forSourceLines(
                     "AnInterface",
-                    "import com.github.victornoel.eo.GenerateWrap;",
-                    "@GenerateWrap",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
                     "public interface AnInterface {",
                     "  String test();",
                     "}"));
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
-            .generatedSourceFile("AnInterfaceWrap")
+            .generatedSourceFile("AnInterfaceEnvelope")
             .hasSourceEquivalentTo(
                 JavaFileObjects.forSourceLines(
-                    "AnInterfaceWrap",
+                    "AnInterfaceEnvelope",
                     "import java.lang.Override;",
                     "import java.lang.String;",
-                    "public abstract class AnInterfaceWrap implements AnInterface {",
+                    "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
-                    "  public AnInterfaceWrap(AnInterface wrapped) {",
+                    "  public AnInterfaceEnvelope(AnInterface wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
                     "  @Override",
@@ -226,25 +227,25 @@ public final class ProcessorTest {
     @Test
     public void overridesMethodWithPrimitiveReturnType() {
         final Compilation compilation = Compiler.javac()
-            .withProcessors(new Processor())
+            .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
                 JavaFileObjects.forSourceLines(
                     "AnInterface",
-                    "import com.github.victornoel.eo.GenerateWrap;",
-                    "@GenerateWrap",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
                     "public interface AnInterface {",
                     "  int test();",
                     "}"));
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
-            .generatedSourceFile("AnInterfaceWrap")
+            .generatedSourceFile("AnInterfaceEnvelope")
             .hasSourceEquivalentTo(
                 JavaFileObjects.forSourceLines(
-                    "AnInterfaceWrap",
+                    "AnInterfaceEnvelope",
                     "import java.lang.Override;",
-                    "public abstract class AnInterfaceWrap implements AnInterface {",
+                    "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
-                    "  public AnInterfaceWrap(AnInterface wrapped) {",
+                    "  public AnInterfaceEnvelope(AnInterface wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
                     "  @Override",
@@ -257,26 +258,26 @@ public final class ProcessorTest {
     @Test
     public void overridesMethodWithParameters() {
         final Compilation compilation = Compiler.javac()
-            .withProcessors(new Processor())
+            .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
                 JavaFileObjects.forSourceLines(
                     "AnInterface",
-                    "import com.github.victornoel.eo.GenerateWrap;",
-                    "@GenerateWrap",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
                     "public interface AnInterface {",
                     "  void test(String a, int b);",
                     "}"));
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
-            .generatedSourceFile("AnInterfaceWrap")
+            .generatedSourceFile("AnInterfaceEnvelope")
             .hasSourceEquivalentTo(
                 JavaFileObjects.forSourceLines(
-                    "AnInterfaceWrap",
+                    "AnInterfaceEnvelope",
                     "import java.lang.Override;",
                     "import java.lang.String;",
-                    "public abstract class AnInterfaceWrap implements AnInterface {",
+                    "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
-                    "  public AnInterfaceWrap(AnInterface wrapped) {",
+                    "  public AnInterfaceEnvelope(AnInterface wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
                     "  @Override",
@@ -289,22 +290,22 @@ public final class ProcessorTest {
     @Test
     public void typeParametersPreserved() {
         final Compilation compilation = Compiler.javac()
-            .withProcessors(new Processor())
+            .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
                 JavaFileObjects.forSourceLines(
                     "AnInterface",
-                    "import com.github.victornoel.eo.GenerateWrap;",
-                    "@GenerateWrap",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
                     "public interface AnInterface<A> {}"));
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
-            .generatedSourceFile("AnInterfaceWrap")
+            .generatedSourceFile("AnInterfaceEnvelope")
             .hasSourceEquivalentTo(
                 JavaFileObjects.forSourceLines(
-                    "AnInterfaceWrap",
-                    "public abstract class AnInterfaceWrap<A> implements AnInterface<A> {",
+                    "AnInterfaceEnvelope",
+                    "public abstract class AnInterfaceEnvelope<A> implements AnInterface<A> {",
                     "  protected final AnInterface<A> wrapped;",
-                    "  public AnInterfaceWrap(AnInterface<A> wrapped) {",
+                    "  public AnInterfaceEnvelope(AnInterface<A> wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
                     "}"));
@@ -313,22 +314,22 @@ public final class ProcessorTest {
     @Test
     public void constrainedTypeParametersPreserved() {
         final Compilation compilation = Compiler.javac()
-            .withProcessors(new Processor())
+            .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
                 JavaFileObjects.forSourceLines(
                     "AnInterface",
                     "import java.util.List;",
-                    "import com.github.victornoel.eo.GenerateWrap;",
-                    "@GenerateWrap",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
                     "public interface AnInterface<B, A extends List<B>> {}"));
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
-            .generatedSourceFile("AnInterfaceWrap")
+            .generatedSourceFile("AnInterfaceEnvelope")
             .containsElementsIn(
                 JavaFileObjects.forSourceLines(
-                    "AnInterfaceWrap",
+                    "AnInterfaceEnvelope",
                     "import java.util.List;",
-                    "public abstract class AnInterfaceWrap<B, A extends List<B>> implements AnInterface<B, A> {",
+                    "public abstract class AnInterfaceEnvelope<B, A extends List<B>> implements AnInterface<B, A> {",
                     "}"));
     }
 }

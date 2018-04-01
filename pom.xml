@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.victornoel.eo</groupId>
-    <artifactId>eo-wraps</artifactId>
+    <artifactId>eo-envelopes</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <inceptionYear>2018</inceptionYear>
-    <url>https://github.com/victornoel/eo-wraps</url>
+    <url>https://github.com/victornoel/eo-envelopes</url>
     <licenses>
         <license>
             <name>GPL 3.0</name>
@@ -17,7 +17,7 @@
     </licenses>
 
     <issueManagement>
-        <url>https://github.com/victornoel/eo-wraps/issues</url>
+        <url>https://github.com/victornoel/eo-envelopes/issues</url>
     </issueManagement>
 
     <developers>
@@ -32,9 +32,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/victornoel/eo-wraps.git</connection>
-        <developerConnection>scm:git:git@github.com:victornoel/eo-wraps.git</developerConnection>
-        <url>https://github.com/victornoel/eo-wraps</url>
+        <connection>scm:git:https://github.com/victornoel/eo-envelopes.git</connection>
+        <developerConnection>scm:git:git@github.com:victornoel/eo-envelopes.git</developerConnection>
+        <url>https://github.com/victornoel/eo-envelopes</url>
         <tag>HEAD</tag>
     </scm>
 

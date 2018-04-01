@@ -1,5 +1,5 @@
 /**
- * EO-Wraps
+ * EO-Envelopes
  * Copyright (C) 2018  Victor Noël
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.victornoel.eo.wrap;
+package com.github.victornoel.eo.apt;
 
-import com.github.victornoel.eo.GenerateWrap;
+import com.github.victornoel.eo.GenerateEnvelope;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import java.io.PrintWriter;
@@ -36,17 +36,18 @@ import javax.tools.Diagnostic.Kind;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(javax.annotation.processing.Processor.class)
-public final class Processor extends AbstractProcessor {
+public final class GenerateEnvelopeProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        return Collections.singleton(GenerateWrap.class.getName());
+        return Collections.singleton(GenerateEnvelope.class.getName());
     }
 
     @Override
     public boolean process(final Set<? extends TypeElement> annotations,
         final RoundEnvironment env) {
-        env.getElementsAnnotatedWith(GenerateWrap.class).forEach(this::process);
+        env.getElementsAnnotatedWith(GenerateEnvelope.class)
+            .forEach(this::process);
         return true;
     }
 
@@ -54,7 +55,7 @@ public final class Processor extends AbstractProcessor {
         if (element.getKind() != ElementKind.INTERFACE) {
             this.processingEnv.getMessager().printMessage(
                 Diagnostic.Kind.ERROR,
-                "@GenerateWrap is only for interfaces",
+                "@GenerateEnvelope is only for interfaces",
                 element);
         } else {
             try {
@@ -78,7 +79,7 @@ public final class Processor extends AbstractProcessor {
                     .getPackageOf(itf)
                     .getQualifiedName()
                     .toString(),
-                new GeneratedTypeSpec(itf).value())
+                new GeneratedEnvelopeTypeSpec(itf).value())
             .build()
             .writeTo(this.processingEnv.getFiler());
     }
