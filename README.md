@@ -15,7 +15,97 @@ You can now extend it to write a decorating envelope without managing the delega
 
 ## What
 
-TODO:
+```java
+package test;
+
+import com.github.victornoel.eo.GenerateWrap;
+
+@GenerateWrap
+public interface Test {
+    String lol(int ab);
+    void lol(Double a) throws Exception;
+}
+```
+
+Gives you:
+
+```java
+package test;
+
+import java.lang.Double;
+import java.lang.Exception;
+import java.lang.Override;
+import java.lang.String;
+
+public abstract class TestWrap implements Test {
+  protected final Test wrapped;
+
+  public TestWrap(Test wrapped) {
+    this.wrapped = wrapped;
+  }
+
+  @Override
+  public final String lol(int ab) {
+    return wrapped.lol(ab);
+  }
+
+  @Override
+  public final void lol(Double a) throws Exception {
+    wrapped.lol(a);
+  }
+}
+```
+
+Inner interfaces are also supported:
+
+```java
+package test;
+
+import com.github.victornoel.eo.GenerateWrap;
+
+public class AClass {
+
+    @GenerateWrap
+    public interface Test {
+        
+        String lol(int ab);
+        
+        void lol(Double a) throws Exception;
+    }
+}
+```
+
+Gives you
+
+```java
+package test;
+
+import java.lang.Double;
+import java.lang.Exception;
+import java.lang.Override;
+import java.lang.String;
+
+public abstract class AClassTestWrap implements AClass.Test {
+  protected final AClass.Test wrapped;
+
+  public AClassTestWrap(AClass.Test wrapped) {
+    this.wrapped = wrapped;
+  }
+
+  @Override
+  public final String lol(int ab) {
+    return wrapped.lol(ab);
+  }
+
+  @Override
+  public final void lol(Double a) throws Exception {
+    wrapped.lol(a);
+  }
+}
+```
+
+## TODO
+
 - [ ] generics
 - [ ] interfaces extending other interfaces
 - [ ] interfaces overriding methods of extended interface
