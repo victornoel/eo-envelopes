@@ -74,9 +74,7 @@ public final class GeneratedTypeSpec implements Scalar<TypeSpec> {
     private static final class DelegatingMethods
         extends IterableEnvelope<MethodSpec> {
 
-        DelegatingMethods(
-            final TypeElement element,
-            final FieldSpec wrapped) {
+        DelegatingMethods(final TypeElement element, final FieldSpec wrapped) {
             this(
                 ElementFilter.methodsIn(element.getEnclosedElements()),
                 wrapped);
@@ -85,10 +83,9 @@ public final class GeneratedTypeSpec implements Scalar<TypeSpec> {
         DelegatingMethods(
             final Iterable<ExecutableElement> sources,
             final FieldSpec wrapped) {
-            super(
-                () -> new Mapped<>(
-                    m -> new DelegatingMethod(m, wrapped).value(),
-                    sources));
+            super(() -> new Mapped<>(
+                m -> new DelegatingMethod(m, wrapped).value(),
+                sources));
         }
     }
 
@@ -97,8 +94,7 @@ public final class GeneratedTypeSpec implements Scalar<TypeSpec> {
         private final ExecutableElement method;
         private final FieldSpec wrapped;
 
-        DelegatingMethod(
-            final ExecutableElement method,
+        DelegatingMethod(final ExecutableElement method,
             final FieldSpec wrapped) {
             this.method = method;
             this.wrapped = wrapped;

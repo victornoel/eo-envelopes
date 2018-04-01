@@ -44,8 +44,7 @@ public final class Processor extends AbstractProcessor {
     }
 
     @Override
-    public boolean process(
-        final Set<? extends TypeElement> annotations,
+    public boolean process(final Set<? extends TypeElement> annotations,
         final RoundEnvironment env) {
         env.getElementsAnnotatedWith(GenerateWrap.class).forEach(this::process);
         return true;
@@ -60,6 +59,7 @@ public final class Processor extends AbstractProcessor {
         } else {
             try {
                 this.process((TypeElement) element);
+                // @checkstyle IllegalCatchCheck (1 line)
             } catch (final Exception exception) {
                 final StringWriter writer = new StringWriter();
                 exception.printStackTrace(new PrintWriter(writer));
