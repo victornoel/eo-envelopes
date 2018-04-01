@@ -285,4 +285,50 @@ public final class ProcessorTest {
                     "  }",
                     "}"));
     }
+
+    @Test
+    public void typeParametersPreserved() {
+        final Compilation compilation = Compiler.javac()
+            .withProcessors(new Processor())
+            .compile(
+                JavaFileObjects.forSourceLines(
+                    "AnInterface",
+                    "import com.github.victornoel.eo.GenerateWrap;",
+                    "@GenerateWrap",
+                    "public interface AnInterface<A> {}"));
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        CompilationSubject.assertThat(compilation)
+            .generatedSourceFile("AnInterfaceWrap")
+            .hasSourceEquivalentTo(
+                JavaFileObjects.forSourceLines(
+                    "AnInterfaceWrap",
+                    "public abstract class AnInterfaceWrap<A> implements AnInterface<A> {",
+                    "  protected final AnInterface<A> wrapped;",
+                    "  public AnInterfaceWrap(AnInterface<A> wrapped) {",
+                    "    this.wrapped = wrapped;",
+                    "  }",
+                    "}"));
+    }
+
+    @Test
+    public void constrainedTypeParametersPreserved() {
+        final Compilation compilation = Compiler.javac()
+            .withProcessors(new Processor())
+            .compile(
+                JavaFileObjects.forSourceLines(
+                    "AnInterface",
+                    "import java.util.List;",
+                    "import com.github.victornoel.eo.GenerateWrap;",
+                    "@GenerateWrap",
+                    "public interface AnInterface<B, A extends List<B>> {}"));
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        CompilationSubject.assertThat(compilation)
+            .generatedSourceFile("AnInterfaceWrap")
+            .containsElementsIn(
+                JavaFileObjects.forSourceLines(
+                    "AnInterfaceWrap",
+                    "import java.util.List;",
+                    "public abstract class AnInterfaceWrap<B, A extends List<B>> implements AnInterface<B, A> {",
+                    "}"));
+    }
 }

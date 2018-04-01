@@ -106,7 +106,6 @@ public abstract class AClassTestWrap implements AClass.Test {
 
 ## TODO
 
-- [ ] generics
 - [ ] interfaces extending other interfaces
 - [ ] interfaces overriding methods of extended interface
 - [ ] generate a generic wrapped field

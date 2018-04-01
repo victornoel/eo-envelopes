@@ -24,6 +24,8 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
+import java.util.stream.Collectors;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
@@ -61,6 +63,11 @@ public final class GeneratedTypeSpec implements Scalar<TypeSpec> {
             .addOriginatingElement(this.source)
             .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
             .addSuperinterface(type)
+            .addTypeVariables(
+                this.source.getTypeParameters()
+                    .stream()
+                    .map(TypeVariableName::get)
+                    .collect(Collectors.toList()))
             .addField(field)
             .addMethod(MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
