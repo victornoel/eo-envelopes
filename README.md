@@ -3,7 +3,8 @@
 
 # Elegant Objects Envelopes
 
-Distributed under the GPL3 but don't forget the generated code is not covered by the license.
+Distributed under the GPL 3.0.
+Note that the output of the processor is not covered by this license and can be used without any restrictions.
 
 ## Why
 
@@ -11,10 +12,22 @@ See http://www.yegor256.com/2017/01/31/decorating-envelopes.html for an explanat
 
 ## How
 
+Add the following dependency:
+
+```xml
+<dependency>
+    <groupId>com.github.victornoel.eo</groupId>
+    <artifactId>eo-envelopes</artifactId>
+    <version><!-- See the Maven Central badge at the top, SNAPSHOTs are deployed to OSS Sonatype --></version>
+</dependency>
+```
+
 Enable Annotation Processing in your IDE to take advantage of it during development.
 
 Simply annotate your interfaces with `@GenerateEnvelope` and an envelope class will be generated for it.
 You can now extend it to write a decorating envelope without managing the delegation yourself.
+
+See at the bottom for unsupported features.
 
 ## What
 
