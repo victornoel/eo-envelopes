@@ -14,16 +14,16 @@ env:
 # skip the travis install step which actually do the whole "mvn install"!
 install: true
 # build with our settings
-script: mvn -B -V clean verify --settings .travis/settings.xml
+script: .travis/maven.sh clean verify
 
 deploy:
   - provider: script
-    script: mvn -B -V clean deploy --settings .travis/settings.xml
+    script: .travis/maven.sh clean deploy
     on:
-      condition: $(.travis/is-snapshot.sh) = *SNAPSHOT
+      condition: $(.travis/version.sh) = *SNAPSHOT
       branch: master
   - provider: script
-    script: mvn -B -V clean deploy -Prelease --settings .travis/settings.xml
+    script: .travis/maven.sh -Prelease clean deploy
     on:
-      condition: $(.travis/is-snapshot.sh) != *SNAPSHOT
+      condition: $(.travis/version.sh) != *SNAPSHOT
       tags: true
