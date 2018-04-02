@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/victornoel/eo-envelopes.png?branch=master)](https://travis-ci.org/victornoel/eo-envelopes)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.victornoel.eo/eo-envelopes.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.victornoel.eo%22%20AND%20a%3A%22eo-envelopes%22)
+
 # Elegant Objects Envelopes
 
 Distributed under the GPL3 but don't forget the generated code is not covered by the license.
