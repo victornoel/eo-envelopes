@@ -1,0 +1,29 @@
+# run in a container
+sudo: false
+
+language: java
+jdk: openjdk8
+
+env:
+  global:
+    # OSSRH_USERNAME 
+    - secure: "BdQOt59ZBPulO5KRkJosbxlH7J6GVelcjHnZkgt1jeGqf+JhOvCD5Jucvm+ZK2L0ojVsVp7j0dN2PftI3GF0mL/coICTnayvEVo8Mfp8Jl4uorH9RRXA/ju5MdPUp+EOShmOc6LW0PUjGAzF9HfpKvyQ9/hI0n78ToDR9EncrCzfOs4g1BVAxSVso0JGhArx0nMf9KjTrBNgzTavOUcEOloQRRtg4O/oWRkeMbUCxF3pnJchTKWXFB9k/0pERR8aYAVggBoAdi51VO/yUhnvkqxVfhXvHHT7FrLbXGnsrFDNYR0ZovWBIWuqdCuGTvnOYX/DT8wPGTHTAe9/NV/6nBfDe5LSaEjqEe+lsPEUBwLgNntbfT2gOkPFzWyXxIOLk2lXQobtxG82ivpyaElOEt9noRkRbuCJuWTxepbHu89Ry76fb+mpXYyvlfwDTsTCeKfFYpycV37pM/rQmDsCc9T5N0KH4wf9zeLzityGRVPnNyurl/NT5DDefNZNvUTyOYsZSDFBVvoimRJYIjfcI1472UqcT0RnbUjxbh8mV8yJFmuKXdCjiwDBf57nrB8ZUFgc4jo1fP4KIUlrNGSt2S1gtJBKir3SUyhvjXRqniFPuSmWGeJOwtg0hDifiSDTubcoTfRjEiE7v3ZKcp0q6brm7HKcl+pXl32JGy/fJqE="
+    # OSSRH_PASSWORD
+    - secure: "tpH5907oyGI2OrLx8jKwA/2If5K0TbDE7dtB0d2FpPwSrHkyX9/2v8G1Kk5pPlXvxv831V9PXGhvDwnQjhrhJPlHBsoUghCXJGizCstgr/fCEeYGkAlrzuq3KlvRd2FKgRZyMdGBvW0bZy5wxvk+yOOd23RAzdvjFomZgc2ZCpRwHqKGparf7IWQ68twr/MlwrKyoUPRQii8cicco9KjFgzZh+6fDfwLC5A75iGN8p7Hg/YQhPy8l6TLJalzLPlY0Q2EJzcqYixF3vAeam6+Qo6WhSpv6+7K3ybE+cvR045hLbhmH0LFQ3PFngDRVlLTjWnhi4GPVCpa/QrRsiNg6c0gRXFABJBrb2DL/UhRzp3LCqWbhXVKGMYY+MSKAvmr5RdaMuGkjr1FttPDmuAn2AKwkKn3kEQ2HCGWBLQmH9QuERdhUPrSOLmgc1SoWZdRVL9kDgpWqTGvZRRn4FhuYmxyMPx/i1kzO18/eLALcoLhNuwMtH/sa0hsxBOqPipGBUTjNLZUWOppnjPdDGiruXA7Hpn92XjP82EnwuALqHYkMdBb6UqeP403aMqXqSL4YE1C0nK5r+n8xPhiiaZoSyDRH9mw4qY7Z9U8YoiXqyQpxelJVdvQVDX5ZUJXJmWlQ2q3GVEhq6BpNZ9y5i0lABNWnJPP3ow05yPxC/RqzNQ="
+
+# skip the travis install step which actually do the whole "mvn install"!
+install: true
+# build with our settings
+script: mvn -B -V clean verify --settings .travis/settings.xml
+
+deploy:
+  - provider: script
+    script: mvn -B -V clean deploy --settings .travis/settings.xml
+    on:
+      condition: $(.travis/is-snapshot.sh) = *SNAPSHOT
+      branch: master
+  - provider: script
+    script: mvn -B -V clean deploy -Prelease --settings .travis/settings.xml
+    on:
+      condition: $(.travis/is-snapshot.sh) != *SNAPSHOT
+      tags: true
