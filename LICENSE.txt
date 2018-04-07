@@ -1,4 +1,4 @@
-EO-GenerateEnvelope
+EO-Envelopes
 Copyright (C) 2018  Victor Noël
 
 This program is free software: you can redistribute it and/or modify

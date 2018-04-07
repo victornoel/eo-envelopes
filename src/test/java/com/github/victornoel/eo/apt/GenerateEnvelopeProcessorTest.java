@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.github.victornoel.eo.apt;
 
-import com.github.victornoel.eo.apt.GenerateEnvelopeProcessor;
 import com.google.testing.compile.Compilation;
 import com.google.testing.compile.CompilationSubject;
 import com.google.testing.compile.Compiler;
@@ -34,7 +34,9 @@ public final class GenerateEnvelopeProcessorTest {
             .compile(
                 JavaFileObjects.forSourceLines(
                     "AnInterface",
-                    "public interface AnInterface {}"));
+                    "public interface AnInterface {}"
+                )
+            );
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         Assertions.assertThat(compilation.generatedSourceFiles()).isEmpty();
     }
@@ -48,7 +50,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "AClass",
                     "import com.github.victornoel.eo.GenerateEnvelope;",
                     "@GenerateEnvelope",
-                    "public class AClass {}"));
+                    "public class AClass {}"
+                )
+            );
         CompilationSubject.assertThat(compilation).failed();
         CompilationSubject.assertThat(compilation)
             .hadErrorContaining("only for interfaces");
@@ -63,7 +67,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "AnInterface",
                     "import com.github.victornoel.eo.GenerateEnvelope;",
                     "@GenerateEnvelope",
-                    "public interface AnInterface {}"));
+                    "public interface AnInterface {}"
+                )
+            );
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
             .generatedSourceFile("AnInterfaceEnvelope")
@@ -75,7 +81,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "  public AnInterfaceEnvelope(AnInterface wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
-                    "}"));
+                    "}"
+                )
+            );
     }
 
     @Test
@@ -88,7 +96,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "package a.complex.pkg;",
                     "import com.github.victornoel.eo.GenerateEnvelope;",
                     "@GenerateEnvelope",
-                    "public interface AnInterface {}"));
+                    "public interface AnInterface {}"
+                )
+            );
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
             .generatedSourceFile("a.complex.pkg.AnInterfaceEnvelope")
@@ -97,7 +107,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "a.complex.package.AnInterfaceEnvelope",
                     "package a.complex.pkg;",
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
-                    "}"));
+                    "}"
+                )
+            );
     }
 
     @Test
@@ -112,7 +124,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "public class AClass {",
                     "  @GenerateEnvelope",
                     "  public interface AnInnerInterface {}",
-                    "}"));
+                    "}"
+                )
+            );
         CompilationSubject.assertThat(compilation)
             .succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
@@ -126,7 +140,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "  public AClassAnInnerInterfaceEnvelope(AClass.AnInnerInterface wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
-                    "}"));
+                    "}"
+                )
+            );
     }
 
     @Test
@@ -140,7 +156,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "@GenerateEnvelope",
                     "public interface AnInterface {",
                     "  void test();",
-                    "}"));
+                    "}"
+                )
+            );
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
             .generatedSourceFile("AnInterfaceEnvelope")
@@ -157,7 +175,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "  public final void test() {",
                     "    wrapped.test();",
                     "  }",
-                    "}"));
+                    "}"
+                )
+            );
     }
 
     @Test
@@ -171,7 +191,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "@GenerateEnvelope",
                     "public interface AnInterface {",
                     "  void test() throws Exception;",
-                    "}"));
+                    "}"
+                )
+            );
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
             .generatedSourceFile("AnInterfaceEnvelope")
@@ -189,7 +211,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "  public final void test() throws Exception {",
                     "    wrapped.test();",
                     "  }",
-                    "}"));
+                    "}"
+                )
+            );
     }
 
     @Test
@@ -203,7 +227,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "@GenerateEnvelope",
                     "public interface AnInterface {",
                     "  String test();",
-                    "}"));
+                    "}"
+                )
+            );
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
             .generatedSourceFile("AnInterfaceEnvelope")
@@ -221,7 +247,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "  public final String test() {",
                     "    return wrapped.test();",
                     "  }",
-                    "}"));
+                    "}"
+                )
+            );
     }
 
     @Test
@@ -235,7 +263,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "@GenerateEnvelope",
                     "public interface AnInterface {",
                     "  int test();",
-                    "}"));
+                    "}"
+                )
+            );
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
             .generatedSourceFile("AnInterfaceEnvelope")
@@ -252,7 +282,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "  public final int test() {",
                     "    return wrapped.test();",
                     "  }",
-                    "}"));
+                    "}"
+                )
+            );
     }
 
     @Test
@@ -266,7 +298,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "@GenerateEnvelope",
                     "public interface AnInterface {",
                     "  void test(String a, int b);",
-                    "}"));
+                    "}"
+                )
+            );
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
             .generatedSourceFile("AnInterfaceEnvelope")
@@ -284,7 +318,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "  public final void test(String a, int b) {",
                     "    wrapped.test(a, b);",
                     "  }",
-                    "}"));
+                    "}"
+                )
+            );
     }
 
     @Test
@@ -296,7 +332,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "AnInterface",
                     "import com.github.victornoel.eo.GenerateEnvelope;",
                     "@GenerateEnvelope",
-                    "public interface AnInterface<A> {}"));
+                    "public interface AnInterface<A> {}"
+                )
+            );
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
             .generatedSourceFile("AnInterfaceEnvelope")
@@ -308,7 +346,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "  public AnInterfaceEnvelope(AnInterface<A> wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
-                    "}"));
+                    "}"
+                )
+            );
     }
 
     @Test
@@ -321,7 +361,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "import java.util.List;",
                     "import com.github.victornoel.eo.GenerateEnvelope;",
                     "@GenerateEnvelope",
-                    "public interface AnInterface<B, A extends List<B>> {}"));
+                    "public interface AnInterface<B, A extends List<B>> {}"
+                )
+            );
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
         CompilationSubject.assertThat(compilation)
             .generatedSourceFile("AnInterfaceEnvelope")
@@ -330,6 +372,8 @@ public final class GenerateEnvelopeProcessorTest {
                     "AnInterfaceEnvelope",
                     "import java.util.List;",
                     "public abstract class AnInterfaceEnvelope<B, A extends List<B>> implements AnInterface<B, A> {",
-                    "}"));
+                    "}"
+                )
+            );
     }
 }

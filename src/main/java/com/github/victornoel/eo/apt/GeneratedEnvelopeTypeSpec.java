@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.github.victornoel.eo.apt;
 
 import com.squareup.javapoet.CodeBlock;
@@ -67,13 +68,15 @@ public final class GeneratedEnvelopeTypeSpec implements Scalar<TypeSpec> {
                 this.source.getTypeParameters()
                     .stream()
                     .map(TypeVariableName::get)
-                    .collect(Collectors.toList()))
+                    .collect(Collectors.toList())
+            )
             .addField(field)
             .addMethod(MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(parameter)
                 .addStatement("this.$N = $N", field, parameter)
-                .build())
+                .build()
+            )
             .addMethods(new DelegatingMethods(this.source, field))
             .build();
     }
@@ -128,7 +131,8 @@ public final class GeneratedEnvelopeTypeSpec implements Scalar<TypeSpec> {
                     .getParameters()
                     .stream()
                     .map(ps -> CodeBlock.of("$N", ParameterSpec.get(ps)))
-                    .collect(CodeBlock.joining(",")))
+                    .collect(CodeBlock.joining(","))
+                )
                 .add(")")
                 .build();
         }

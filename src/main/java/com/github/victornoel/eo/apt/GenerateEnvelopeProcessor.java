@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.github.victornoel.eo.apt;
 
 import com.github.victornoel.eo.GenerateEnvelope;
@@ -56,7 +57,8 @@ public final class GenerateEnvelopeProcessor extends AbstractProcessor {
             this.processingEnv.getMessager().printMessage(
                 Diagnostic.Kind.ERROR,
                 "@GenerateEnvelope is only for interfaces",
-                element);
+                element
+            );
         } else {
             try {
                 this.process((TypeElement) element);
@@ -67,7 +69,8 @@ public final class GenerateEnvelopeProcessor extends AbstractProcessor {
                 processingEnv.getMessager().printMessage(
                     Kind.ERROR,
                     String.format("FATAL ERROR: %s", writer),
-                    element);
+                    element
+                );
             }
         }
     }
