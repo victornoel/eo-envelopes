@@ -26,33 +26,31 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import java.util.Collection;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.ElementFilter;
-import org.cactoos.Scalar;
-import org.cactoos.iterable.IterableEnvelope;
-import org.cactoos.iterable.Mapped;
 
-public final class GeneratedEnvelopeTypeSpec implements Scalar<TypeSpec> {
+public final class GeneratedEnvelopeTypeSpec {
 
     private final TypeElement source;
-    private final Scalar<String> name;
+    private final Supplier<String> name;
 
     public GeneratedEnvelopeTypeSpec(final TypeElement source) {
         this(source, new GeneratedEnvelopeName(source));
     }
 
     public GeneratedEnvelopeTypeSpec(final TypeElement source,
-        final Scalar<String> name) {
+        final Supplier<String> name) {
         this.source = source;
         this.name = name;
     }
 
-    @Override
-    public TypeSpec value() throws Exception {
+    public TypeSpec typeSpec() throws Exception {
         final TypeName type = TypeName.get(this.source.asType());
         final FieldSpec field = FieldSpec
             .builder(type, "wrapped", Modifier.PROTECTED, Modifier.FINAL)
@@ -60,7 +58,7 @@ public final class GeneratedEnvelopeTypeSpec implements Scalar<TypeSpec> {
         final ParameterSpec parameter = ParameterSpec
             .builder(type, "wrapped")
             .build();
-        return TypeSpec.classBuilder(this.name.value())
+        return TypeSpec.classBuilder(this.name.get())
             .addOriginatingElement(this.source)
             .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
             .addSuperinterface(type)
@@ -77,12 +75,15 @@ public final class GeneratedEnvelopeTypeSpec implements Scalar<TypeSpec> {
                 .addStatement("this.$N = $N", field, parameter)
                 .build()
             )
-            .addMethods(new DelegatingMethods(this.source, field))
+            .addMethods(new DelegatingMethods(this.source, field).get())
             .build();
     }
 
     private static final class DelegatingMethods
-        extends IterableEnvelope<MethodSpec> {
+        implements Supplier<Iterable<MethodSpec>> {
+
+        private final Collection<ExecutableElement> sources;
+        private final FieldSpec wrapped;
 
         DelegatingMethods(final TypeElement element, final FieldSpec wrapped) {
             this(
@@ -90,16 +91,22 @@ public final class GeneratedEnvelopeTypeSpec implements Scalar<TypeSpec> {
                 wrapped);
         }
 
-        DelegatingMethods(
-            final Iterable<ExecutableElement> sources,
+        DelegatingMethods(final Collection<ExecutableElement> sources,
             final FieldSpec wrapped) {
-            super(() -> new Mapped<>(
-                m -> new DelegatingMethod(m, wrapped).value(),
-                sources));
+            this.sources = sources;
+            this.wrapped = wrapped;
+        }
+
+        @Override
+        public Iterable<MethodSpec> get() {
+            return this.sources.stream()
+                .map(m -> new DelegatingMethod(m, this.wrapped).get())
+                .collect(Collectors.toList());
         }
     }
 
-    private static final class DelegatingMethod implements Scalar<MethodSpec> {
+    private static final class DelegatingMethod
+        implements Supplier<MethodSpec> {
 
         private final ExecutableElement method;
         private final FieldSpec wrapped;
@@ -111,7 +118,7 @@ public final class GeneratedEnvelopeTypeSpec implements Scalar<TypeSpec> {
         }
 
         @Override
-        public MethodSpec value() {
+        public MethodSpec get() {
             return MethodSpec
                 .overriding(this.method)
                 .addModifiers(Modifier.FINAL)

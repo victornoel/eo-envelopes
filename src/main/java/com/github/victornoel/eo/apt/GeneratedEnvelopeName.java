@@ -18,12 +18,12 @@
 
 package com.github.victornoel.eo.apt;
 
+import java.util.function.Supplier;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import org.cactoos.Scalar;
 
-public final class GeneratedEnvelopeName implements Scalar<String> {
+public final class GeneratedEnvelopeName implements Supplier<String> {
 
     private final TypeElement source;
     private final String suffix;
@@ -39,7 +39,7 @@ public final class GeneratedEnvelopeName implements Scalar<String> {
     }
 
     @Override
-    public String value() {
+    public String get() {
         String name = this.source.getSimpleName() + this.suffix;
         Element parent = this.source.getEnclosingElement();
         while (parent.getKind() != ElementKind.PACKAGE) {
