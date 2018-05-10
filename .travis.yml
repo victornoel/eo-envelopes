@@ -18,7 +18,7 @@ env:
 # skip the travis install step which actually do the whole "mvn install"!
 install: true
 # build with our settings
-script: .travis/maven.sh clean verify
+script: .travis/maven.sh clean verify -Pqulice
 
 deploy:
   - provider: script

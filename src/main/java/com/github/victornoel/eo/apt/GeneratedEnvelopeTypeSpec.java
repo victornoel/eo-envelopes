@@ -1,6 +1,6 @@
-/**
+/*
  * EO-Envelopes
- * Copyright (C) 2018  Victor Noël
+ * Copyright (C) 2018 Victor Noël
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,28 +35,58 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.ElementFilter;
 
+/**
+ * The generated code of a generated envelope.
+ *
+ * @since 0.0.1
+ */
 public final class GeneratedEnvelopeTypeSpec {
 
+    /**
+     * The source interface.
+     */
     private final TypeElement source;
+
+    /**
+     * The name for the generated envelope.
+     */
     private final Supplier<String> name;
 
+    /**
+     * Ctor.
+     *
+     * @param source The source interface
+     */
     public GeneratedEnvelopeTypeSpec(final TypeElement source) {
         this(source, new GeneratedEnvelopeName(source));
     }
 
+    /**
+     * Ctor.
+     *
+     * @param source The source interface
+     * @param name The name for the generated envelope
+     */
     public GeneratedEnvelopeTypeSpec(final TypeElement source,
         final Supplier<String> name) {
         this.source = source;
         this.name = name;
     }
 
+    /**
+     * Generate the code for the generated envelope.
+     *
+     * @return The generated code
+     * @throws Exception If fails
+     */
     public TypeSpec typeSpec() throws Exception {
         final TypeName type = TypeName.get(this.source.asType());
+        final String wrapped = "wrapped";
         final FieldSpec field = FieldSpec
-            .builder(type, "wrapped", Modifier.PROTECTED, Modifier.FINAL)
+            .builder(type, wrapped, Modifier.PROTECTED, Modifier.FINAL)
             .build();
         final ParameterSpec parameter = ParameterSpec
-            .builder(type, "wrapped")
+            .builder(type, wrapped)
             .build();
         return TypeSpec.classBuilder(this.name.get())
             .addOriginatingElement(this.source)
@@ -79,18 +109,40 @@ public final class GeneratedEnvelopeTypeSpec {
             .build();
     }
 
+    /**
+     * Generated delegating methods.
+     */
     private static final class DelegatingMethods
         implements Supplier<Iterable<MethodSpec>> {
 
+        /**
+         * The methods to delegate.
+         */
         private final Collection<ExecutableElement> sources;
+
+        /**
+         * The field to delegate to.
+         */
         private final FieldSpec wrapped;
 
+        /**
+         * Ctor.
+         *
+         * @param element The interface to delegate to
+         * @param wrapped The field to delegate to
+         */
         DelegatingMethods(final TypeElement element, final FieldSpec wrapped) {
             this(
                 ElementFilter.methodsIn(element.getEnclosedElements()),
                 wrapped);
         }
 
+        /**
+         * Ctor.
+         *
+         * @param sources The methods to delegate
+         * @param wrapped The field to delegate to
+         */
         DelegatingMethods(final Collection<ExecutableElement> sources,
             final FieldSpec wrapped) {
             this.sources = sources;
@@ -105,12 +157,28 @@ public final class GeneratedEnvelopeTypeSpec {
         }
     }
 
+    /**
+     * One generated delegating method.
+     */
     private static final class DelegatingMethod
         implements Supplier<MethodSpec> {
 
+        /**
+         * The method to delegate.
+         */
         private final ExecutableElement method;
+
+        /**
+         * The field to delegate to.
+         */
         private final FieldSpec wrapped;
 
+        /**
+         * Ctor.
+         *
+         * @param method The method to delegate
+         * @param wrapped The field to delegate to
+         */
         DelegatingMethod(final ExecutableElement method,
             final FieldSpec wrapped) {
             this.method = method;
@@ -126,6 +194,11 @@ public final class GeneratedEnvelopeTypeSpec {
                 .build();
         }
 
+        /**
+         * The actual delegation to the field.
+         *
+         * @return The delegation code
+         */
         private CodeBlock delegation() {
             Builder statement = CodeBlock.builder();
             if (this.method.getReturnType().getKind() != TypeKind.VOID) {

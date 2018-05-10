@@ -1,6 +1,6 @@
-/**
+/*
  * EO-Envelopes
- * Copyright (C) 2018  Victor Noël
+ * Copyright (C) 2018 Victor Noël
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,11 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
 
+/**
+ * A processor to generate envelopes from {@link GenerateEnvelope}.
+ *
+ * @since 0.0.1
+ */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(javax.annotation.processing.Processor.class)
 public final class GenerateEnvelopeProcessor extends AbstractProcessor {
@@ -52,16 +57,16 @@ public final class GenerateEnvelopeProcessor extends AbstractProcessor {
         return true;
     }
 
+    /**
+     * Process one element annotated with {@link GenerateEnvelope}.
+     *
+     * @param element The annotated element
+     */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     private void process(final Element element) {
-        if (element.getKind() != ElementKind.INTERFACE) {
-            this.processingEnv.getMessager().printMessage(
-                Diagnostic.Kind.ERROR,
-                "@GenerateEnvelope is only for interfaces",
-                element
-            );
-        } else {
+        if (element.getKind() == ElementKind.INTERFACE) {
             try {
-                this.process((TypeElement) element);
+                this.generate((TypeElement) element);
                 // @checkstyle IllegalCatchCheck (1 line)
             } catch (final Exception exception) {
                 final StringWriter writer = new StringWriter();
@@ -72,10 +77,23 @@ public final class GenerateEnvelopeProcessor extends AbstractProcessor {
                     element
                 );
             }
+        } else {
+            this.processingEnv.getMessager().printMessage(
+                Diagnostic.Kind.ERROR,
+                "@GenerateEnvelope is only for interfaces",
+                element
+            );
         }
     }
 
-    private void process(final TypeElement itf) throws Exception {
+    /**
+     * Generate an envelope for an interface annotated with
+     * {@link GenerateEnvelope}.
+     *
+     * @param itf The annotated interface
+     * @throws Exception If fails
+     */
+    private void generate(final TypeElement itf) throws Exception {
         JavaFile
             .builder(
                 this.processingEnv.getElementUtils()

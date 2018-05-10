@@ -1,6 +1,6 @@
-/**
+/*
  * EO-Envelopes
- * Copyright (C) 2018  Victor Noël
+ * Copyright (C) 2018 Victor Noël
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,15 +23,38 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 
+/**
+ * The name of a generated envelope.
+ *
+ * @since 0.0.1
+ */
 public final class GeneratedEnvelopeName implements Supplier<String> {
 
+    /**
+     * The source interface.
+     */
     private final TypeElement source;
+
+    /**
+     * The suffix to append to the name.
+     */
     private final String suffix;
 
+    /**
+     * Ctor.
+     *
+     * @param source The source interface
+     */
     public GeneratedEnvelopeName(final TypeElement source) {
         this(source, "Envelope");
     }
 
+    /**
+     * Ctor.
+     *
+     * @param source The source interface
+     * @param suffix The suffix to append to the name
+     */
     public GeneratedEnvelopeName(final TypeElement source,
         final String suffix) {
         this.source = source;
@@ -39,6 +62,7 @@ public final class GeneratedEnvelopeName implements Supplier<String> {
     }
 
     @Override
+    @SuppressWarnings("PMD.UseStringBufferForStringAppends")
     public String get() {
         String name = this.source.getSimpleName() + this.suffix;
         Element parent = this.source.getEnclosingElement();

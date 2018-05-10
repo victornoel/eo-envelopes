@@ -16,19 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.github.victornoel.eo;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * Annotation to apply on interfaces.
+ * APT implementation of {@link GenerateEnvelope}.
  *
  * @since 0.0.1
  */
-@Retention(RetentionPolicy.SOURCE)
-@Target(ElementType.TYPE)
-public @interface GenerateEnvelope {
-}
+package com.github.victornoel.eo.apt;
