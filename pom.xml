@@ -98,6 +98,23 @@
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                    <compilerArgs>
+                        <arg>-Xlint</arg>
+                        <arg>-Werror</arg>
+                        <!-- because of https://bugs.openjdk.java.net/browse/JDK-6999068 -->
+                        <arg>-Xlint:-processing</arg>
+                    </compilerArgs>
+                    <testExcludes>
+                        <exclude>**/package-info.java</exclude>
+                    </testExcludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
