@@ -157,7 +157,7 @@ public final class GenerateEnvelopeProcessorTest {
     }
 
     @Test
-    public void overridesVoidMethod() {
+    public void delegatesVoidMethod() {
         final Compilation compilation = Compiler.javac()
             .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
@@ -193,7 +193,7 @@ public final class GenerateEnvelopeProcessorTest {
     }
 
     @Test
-    public void overridesMethodWithException() {
+    public void delegatesMethodWithException() {
         final Compilation compilation = Compiler.javac()
             .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
@@ -230,7 +230,7 @@ public final class GenerateEnvelopeProcessorTest {
     }
 
     @Test
-    public void overridesMethodWithReturnType() {
+    public void delegatesMethodWithReturnType() {
         final Compilation compilation = Compiler.javac()
             .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
@@ -267,7 +267,7 @@ public final class GenerateEnvelopeProcessorTest {
     }
 
     @Test
-    public void overridesMethodWithPrimitiveReturnType() {
+    public void delegatesMethodWithPrimitiveReturnType() {
         final Compilation compilation = Compiler.javac()
             .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
@@ -303,7 +303,7 @@ public final class GenerateEnvelopeProcessorTest {
     }
 
     @Test
-    public void overridesMethodWithParameters() {
+    public void delegatesMethodWithParameters() {
         final Compilation compilation = Compiler.javac()
             .withProcessors(new GenerateEnvelopeProcessor())
             .compile(
