@@ -51,7 +51,7 @@ public final class GeneratedEnvelopeTypeSpec {
     /**
      * The name for the generated envelope.
      */
-    private final Supplier<String> name;
+    private final String name;
 
     /**
      * The processing environment.
@@ -66,7 +66,7 @@ public final class GeneratedEnvelopeTypeSpec {
      */
     public GeneratedEnvelopeTypeSpec(final TypeElement source,
         final ProcessingEnvironment procenv) {
-        this(source, new GeneratedEnvelopeName(source), procenv);
+        this(source, new GeneratedEnvelopeName(source).get(), procenv);
     }
 
     /**
@@ -77,8 +77,7 @@ public final class GeneratedEnvelopeTypeSpec {
      * @param procenv The processing environment
      */
     public GeneratedEnvelopeTypeSpec(final TypeElement source,
-        final Supplier<String> name,
-        final ProcessingEnvironment procenv) {
+        final String name, final ProcessingEnvironment procenv) {
         this.source = source;
         this.name = name;
         this.procenv = procenv;
@@ -99,7 +98,7 @@ public final class GeneratedEnvelopeTypeSpec {
         final ParameterSpec parameter = ParameterSpec
             .builder(type, wrapped)
             .build();
-        return TypeSpec.classBuilder(this.name.get())
+        return TypeSpec.classBuilder(this.name)
             .addOriginatingElement(this.source)
             .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
             .addSuperinterface(type)
