@@ -119,9 +119,3 @@ public abstract class AClassTestEnvelope implements AClass.Test {
   }
 }
 ```
-
-## TODO
-
-- [ ] interfaces extending other interfaces
-- [ ] interfaces overriding methods of extended interface
-- [ ] generate a generic wrapped field

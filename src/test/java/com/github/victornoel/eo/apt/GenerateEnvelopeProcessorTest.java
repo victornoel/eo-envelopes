@@ -29,7 +29,7 @@ import org.junit.Test;
  * Tests for {@link GenerateEnvelopeProcessor}.
  *
  * @since 0.0.1
- * @checkstyle JavadocMethodCheck (500 lines)
+ * @checkstyle JavadocMethodCheck (1000 lines)
  */
 @SuppressWarnings({"PMD.TooManyMethods", "PMD.AvoidDuplicateLiterals"})
 public final class GenerateEnvelopeProcessorTest {
@@ -390,6 +390,227 @@ public final class GenerateEnvelopeProcessorTest {
                     "import java.util.List;",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope<B, A extends List<B>> implements AnInterface<B, A> {",
+                    "}"
+                )
+            );
+    }
+
+    @Test
+    public void delegatesMethodsOfSuperSuperInterfaces() {
+        final Compilation compilation = Compiler.javac()
+            .withProcessors(new GenerateEnvelopeProcessor())
+            .compile(
+                JavaFileObjects.forSourceLines(
+                    "ASuperSuperInterface",
+                    "public interface ASuperSuperInterface {",
+                    "  void test(String a, int b);",
+                    "}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "ASuperInterface",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "public interface ASuperInterface extends ASuperSuperInterface {",
+                    "  int test2(String a, int b) throws Exception;",
+                    "}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "AnInterface",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
+                    "public interface AnInterface extends ASuperInterface {",
+                    "  void test3();",
+                    "}"
+                )
+            );
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        CompilationSubject.assertThat(compilation)
+            .generatedSourceFile("AnInterfaceEnvelope")
+            .hasSourceEquivalentTo(
+                JavaFileObjects.forSourceLines(
+                    "AnInterfaceEnvelope",
+                    "import java.lang.Exception;",
+                    "import java.lang.Override;",
+                    "import java.lang.String;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "public abstract class AnInterfaceEnvelope implements AnInterface {",
+                    "  protected final AnInterface wrapped;",
+                    "  public AnInterfaceEnvelope(AnInterface wrapped) {",
+                    "    this.wrapped = wrapped;",
+                    "  }",
+                    "  @Override",
+                    "  public final void test(String a, int b) {",
+                    "    wrapped.test(a, b);",
+                    "  }",
+                    "  @Override",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "  public final int test2(String a, int b) throws Exception {",
+                    "    return wrapped.test2(a, b);",
+                    "  }",
+                    "  @Override",
+                    "  public final void test3() {",
+                    "    wrapped.test3();",
+                    "  }",
+                    "}"
+                )
+            );
+    }
+
+    @Test
+    public void delegatesMethodsOfMultipleSuperInterfaces() {
+        final Compilation compilation = Compiler.javac()
+            .withProcessors(new GenerateEnvelopeProcessor())
+            .compile(
+                JavaFileObjects.forSourceLines(
+                    "ASuperInterface1",
+                    "public interface ASuperInterface1 {",
+                    "  void test1(String a, int b);",
+                    "}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "ASuperInterface2",
+                    "public interface ASuperInterface2 {",
+                    "  void test2(String a, int b);",
+                    "}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "AnInterface",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "public interface AnInterface extends ASuperInterface1, ASuperInterface2 {",
+                    "  void test();",
+                    "}"
+                )
+            );
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        CompilationSubject.assertThat(compilation)
+            .generatedSourceFile("AnInterfaceEnvelope")
+            .hasSourceEquivalentTo(
+                JavaFileObjects.forSourceLines(
+                    "AnInterfaceEnvelope",
+                    "import java.lang.Override;",
+                    "import java.lang.String;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "public abstract class AnInterfaceEnvelope implements AnInterface {",
+                    "  protected final AnInterface wrapped;",
+                    "  public AnInterfaceEnvelope(AnInterface wrapped) {",
+                    "    this.wrapped = wrapped;",
+                    "  }",
+                    "  @Override",
+                    "  public final void test1(String a, int b) {",
+                    "    wrapped.test1(a, b);",
+                    "  }",
+                    "  @Override",
+                    "  public final void test2(String a, int b) {",
+                    "    wrapped.test2(a, b);",
+                    "  }",
+                    "  @Override",
+                    "  public final void test() {",
+                    "    wrapped.test();",
+                    "  }",
+                    "}"
+                )
+            );
+    }
+
+    @Test
+    public void delegatesMethodsOfSuperInterfacesOnlyOnce() {
+        final Compilation compilation = Compiler.javac()
+            .withProcessors(new GenerateEnvelopeProcessor())
+            .compile(
+                JavaFileObjects.forSourceLines(
+                    "ASuperInterface1",
+                    "public interface ASuperInterface1 {",
+                    "  void test(String a, int b);",
+                    "}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "ASuperInterface2",
+                    "public interface ASuperInterface2 {",
+                    "  void test(String a, int b);",
+                    "}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "AnInterface",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "public interface AnInterface extends ASuperInterface1, ASuperInterface2 {",
+                    "  void test();",
+                    "}"
+                )
+            );
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        CompilationSubject.assertThat(compilation)
+            .generatedSourceFile("AnInterfaceEnvelope")
+            .hasSourceEquivalentTo(
+                JavaFileObjects.forSourceLines(
+                    "AnInterfaceEnvelope",
+                    "import java.lang.Override;",
+                    "import java.lang.String;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "public abstract class AnInterfaceEnvelope implements AnInterface {",
+                    "  protected final AnInterface wrapped;",
+                    "  public AnInterfaceEnvelope(AnInterface wrapped) {",
+                    "    this.wrapped = wrapped;",
+                    "  }",
+                    "  @Override",
+                    "  public final void test(String a, int b) {",
+                    "    wrapped.test(a, b);",
+                    "  }",
+                    "  @Override",
+                    "  public final void test() {",
+                    "    wrapped.test();",
+                    "  }",
+                    "}"
+                )
+            );
+    }
+
+    @Test
+    public void delegatesMethodsOfOverridedSuperInterfaces() {
+        final Compilation compilation = Compiler.javac()
+            .withProcessors(new GenerateEnvelopeProcessor())
+            .compile(
+                JavaFileObjects.forSourceLines(
+                    "ASuperInterface",
+                    "public interface ASuperInterface {",
+                    "  void test1(String a, int b) throws Exception;",
+                    "}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "AnInterface",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
+                    "public interface AnInterface extends ASuperInterface {",
+                    "  void test();",
+                    "  @Override",
+                    "  void test1(String a, int b);",
+                    "}"
+                )
+            );
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        CompilationSubject.assertThat(compilation)
+            .generatedSourceFile("AnInterfaceEnvelope")
+            .hasSourceEquivalentTo(
+                JavaFileObjects.forSourceLines(
+                    "AnInterfaceEnvelope",
+                    "import java.lang.Override;",
+                    "import java.lang.String;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "public abstract class AnInterfaceEnvelope implements AnInterface {",
+                    "  protected final AnInterface wrapped;",
+                    "  public AnInterfaceEnvelope(AnInterface wrapped) {",
+                    "    this.wrapped = wrapped;",
+                    "  }",
+                    "  @Override",
+                    "  public final void test() {",
+                    "    wrapped.test();",
+                    "  }",
+                    "  @Override",
+                    "  public final void test1(String a, int b) {",
+                    "    wrapped.test1(a, b);",
+                    "  }",
                     "}"
                 )
             );

@@ -100,7 +100,10 @@ public final class GenerateEnvelopeProcessor extends AbstractProcessor {
                     .getPackageOf(itf)
                     .getQualifiedName()
                     .toString(),
-                new GeneratedEnvelopeTypeSpec(itf).typeSpec()
+                new GeneratedEnvelopeTypeSpec(
+                    itf,
+                    this.processingEnv
+                ).typeSpec()
             )
             .build()
             .writeTo(this.processingEnv.getFiler());

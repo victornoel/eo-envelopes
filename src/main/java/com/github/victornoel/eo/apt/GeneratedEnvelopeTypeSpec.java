@@ -18,6 +18,7 @@
 
 package com.github.victornoel.eo.apt;
 
+import com.google.auto.common.MoreElements;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.FieldSpec;
@@ -29,11 +30,11 @@ import com.squareup.javapoet.TypeVariableName;
 import java.util.Collection;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeKind;
-import javax.lang.model.util.ElementFilter;
 
 /**
  * The generated code of a generated envelope.
@@ -53,12 +54,19 @@ public final class GeneratedEnvelopeTypeSpec {
     private final Supplier<String> name;
 
     /**
+     * The processing environment.
+     */
+    private ProcessingEnvironment procenv;
+
+    /**
      * Ctor.
      *
      * @param source The source interface
+     * @param procenv The processing environment
      */
-    public GeneratedEnvelopeTypeSpec(final TypeElement source) {
-        this(source, new GeneratedEnvelopeName(source));
+    public GeneratedEnvelopeTypeSpec(final TypeElement source,
+        final ProcessingEnvironment procenv) {
+        this(source, new GeneratedEnvelopeName(source), procenv);
     }
 
     /**
@@ -66,11 +74,14 @@ public final class GeneratedEnvelopeTypeSpec {
      *
      * @param source The source interface
      * @param name The name for the generated envelope
+     * @param procenv The processing environment
      */
     public GeneratedEnvelopeTypeSpec(final TypeElement source,
-        final Supplier<String> name) {
+        final Supplier<String> name,
+        final ProcessingEnvironment procenv) {
         this.source = source;
         this.name = name;
+        this.procenv = procenv;
     }
 
     /**
@@ -105,7 +116,9 @@ public final class GeneratedEnvelopeTypeSpec {
                 .addStatement("this.$N = $N", field, parameter)
                 .build()
             )
-            .addMethods(new DelegatingMethods(this.source, field).get())
+            .addMethods(
+                new DelegatingMethods(this.source, field, this.procenv).get()
+            )
             .build();
     }
 
@@ -130,11 +143,18 @@ public final class GeneratedEnvelopeTypeSpec {
          *
          * @param element The interface to delegate to
          * @param wrapped The field to delegate to
+         * @param procenv The processing environment
          */
-        DelegatingMethods(final TypeElement element, final FieldSpec wrapped) {
+        DelegatingMethods(final TypeElement element, final FieldSpec wrapped,
+            final ProcessingEnvironment procenv) {
             this(
-                ElementFilter.methodsIn(element.getEnclosedElements()),
-                wrapped);
+                MoreElements.getLocalAndInheritedMethods(
+                    element,
+                    procenv.getTypeUtils(),
+                    procenv.getElementUtils()
+                ),
+                wrapped
+            );
         }
 
         /**
