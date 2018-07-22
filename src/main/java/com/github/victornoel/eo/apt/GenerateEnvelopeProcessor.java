@@ -94,7 +94,7 @@ public final class GenerateEnvelopeProcessor extends AbstractProcessor {
      * @throws Exception If fails
      */
     private void generate(final TypeElement itf) throws Exception {
-        JavaFile
+        final JavaFile file = JavaFile
             .builder(
                 this.processingEnv.getElementUtils()
                     .getPackageOf(itf)
@@ -105,7 +105,10 @@ public final class GenerateEnvelopeProcessor extends AbstractProcessor {
                     this.processingEnv
                 ).typeSpec()
             )
-            .build()
-            .writeTo(this.processingEnv.getFiler());
+            .build();
+        // @checkstyle MethodBodyCommentsCheck (1 line)
+        // mitigation for https://bugs.eclipse.org/bugs/show_bug.cgi?id=367599
+        file.toJavaFileObject().delete();
+        file.writeTo(this.processingEnv.getFiler());
     }
 }
