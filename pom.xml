@@ -5,7 +5,7 @@
 
     <groupId>com.github.victornoel.eo</groupId>
     <artifactId>eo-envelopes</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Annotation processor to generate elegant objects envelopes from Java interfaces</description>
