@@ -19,6 +19,7 @@
 package com.github.victornoel.eo.apt;
 
 import com.google.auto.common.MoreElements;
+import com.google.auto.common.MoreTypes;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.FieldSpec;
@@ -115,16 +116,14 @@ public final class GeneratedEnvelopeTypeSpec {
                 .addStatement("this.$N = $N", field, parameter)
                 .build()
             )
-            .addMethods(
-                new DelegatingMethods(this.source, field, this.procenv).get()
-            )
+            .addMethods(new DelegatingMethods(field).get())
             .build();
     }
 
     /**
      * Generated delegating methods.
      */
-    private static final class DelegatingMethods
+    private final class DelegatingMethods
         implements Supplier<Iterable<MethodSpec>> {
 
         /**
@@ -140,17 +139,14 @@ public final class GeneratedEnvelopeTypeSpec {
         /**
          * Ctor.
          *
-         * @param element The interface to delegate to
          * @param wrapped The field to delegate to
-         * @param procenv The processing environment
          */
-        DelegatingMethods(final TypeElement element, final FieldSpec wrapped,
-            final ProcessingEnvironment procenv) {
+        DelegatingMethods(final FieldSpec wrapped) {
             this(
                 MoreElements.getLocalAndInheritedMethods(
-                    element,
-                    procenv.getTypeUtils(),
-                    procenv.getElementUtils()
+                    GeneratedEnvelopeTypeSpec.this.source,
+                    GeneratedEnvelopeTypeSpec.this.procenv.getTypeUtils(),
+                    GeneratedEnvelopeTypeSpec.this.procenv.getElementUtils()
                 ),
                 wrapped
             );
@@ -179,8 +175,7 @@ public final class GeneratedEnvelopeTypeSpec {
     /**
      * One generated delegating method.
      */
-    private static final class DelegatingMethod
-        implements Supplier<MethodSpec> {
+    private final class DelegatingMethod implements Supplier<MethodSpec> {
 
         /**
          * The method to delegate.
@@ -207,7 +202,13 @@ public final class GeneratedEnvelopeTypeSpec {
         @Override
         public MethodSpec get() {
             return MethodSpec
-                .overriding(this.method)
+                .overriding(
+                    this.method,
+                    MoreTypes.asDeclared(
+                        GeneratedEnvelopeTypeSpec.this.source.asType()
+                    ),
+                    GeneratedEnvelopeTypeSpec.this.procenv.getTypeUtils()
+                )
                 .addModifiers(Modifier.FINAL)
                 .addStatement(this.delegation())
                 .build();

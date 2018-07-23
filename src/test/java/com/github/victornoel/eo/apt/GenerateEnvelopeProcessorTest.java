@@ -23,7 +23,6 @@ import com.google.testing.compile.CompilationSubject;
 import com.google.testing.compile.Compiler;
 import com.google.testing.compile.JavaFileObjects;
 import org.assertj.core.api.Assertions;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -617,7 +616,6 @@ public final class GenerateEnvelopeProcessorTest {
             );
     }
 
-    @Ignore("https://github.com/victornoel/eo-envelopes/issues/6")
     @Test
     public void delegatesMethodsOfSuperInterfacesWithConcreteParameters() {
         final Compilation compilation = Compiler.javac()
@@ -634,7 +632,7 @@ public final class GenerateEnvelopeProcessorTest {
                     "import com.github.victornoel.eo.GenerateEnvelope;",
                     "@GenerateEnvelope",
                     // @checkstyle LineLengthCheck (1 line)
-                    "public interface AnInterface extends ASuperInterface<String> {",
+                    "public interface AnInterface<B> extends ASuperInterface<B> {",
                     "  void test();",
                     "}"
                 )
@@ -646,7 +644,51 @@ public final class GenerateEnvelopeProcessorTest {
                 JavaFileObjects.forSourceLines(
                     "AnInterfaceEnvelope",
                     "import java.lang.Override;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "public abstract class AnInterfaceEnvelope<B> implements AnInterface<B> {",
+                    "  protected final AnInterface<B> wrapped;",
+                    "  public AnInterfaceEnvelope(AnInterface<B> wrapped) {",
+                    "    this.wrapped = wrapped;",
+                    "  }",
+                    "  @Override",
+                    "  public final void test(B a) {",
+                    "    wrapped.test(a);",
+                    "  }",
+                    "  @Override",
+                    "  public final void test() {",
+                    "    wrapped.test();",
+                    "  }",
+                    "}"
+                )
+            );
+    }
+
+    @Test
+    public void delegatesMethodsOfInterfacesWithConcreteComplexParameters() {
+        final Compilation compilation = Compiler.javac()
+            .withProcessors(new GenerateEnvelopeProcessor())
+            .compile(
+                JavaFileObjects.forSourceLines(
+                    "AnInterface",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "import java.lang.Iterable;",
+                    "@GenerateEnvelope",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "public interface AnInterface extends Iterable<String> {",
+                    "}"
+                )
+            );
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        CompilationSubject.assertThat(compilation)
+            .generatedSourceFile("AnInterfaceEnvelope")
+            .hasSourceEquivalentTo(
+                JavaFileObjects.forSourceLines(
+                    "AnInterfaceEnvelope",
+                    "import java.lang.Override;",
                     "import java.lang.String;",
+                    "import java.util.Iterator;",
+                    "import java.util.Spliterator;",
+                    "import java.util.function.Consumer;",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
@@ -654,12 +696,17 @@ public final class GenerateEnvelopeProcessorTest {
                     "    this.wrapped = wrapped;",
                     "  }",
                     "  @Override",
-                    "  public final void test(String a) {",
-                    "    wrapped.test(a);",
+                    "  public final Iterator<String> iterator() {",
+                    "    return wrapped.iterator();",
                     "  }",
                     "  @Override",
-                    "  public final void test() {",
-                    "    wrapped.test();",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "  public final void forEach(Consumer<? super String> arg0) {",
+                    "    wrapped.forEach(arg0);",
+                    "  }",
+                    "  @Override",
+                    "  public final Spliterator<String> spliterator() {",
+                    "    return wrapped.spliterator();",
                     "  }",
                     "}"
                 )
