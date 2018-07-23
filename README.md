@@ -19,6 +19,7 @@ Add the following dependency:
     <groupId>com.github.victornoel.eo</groupId>
     <artifactId>eo-envelopes</artifactId>
     <version><!-- See the Maven Central badge at the top, SNAPSHOTs are deployed to OSS Sonatype --></version>
+    <scope>provided</scope>
 </dependency>
 ```
 
