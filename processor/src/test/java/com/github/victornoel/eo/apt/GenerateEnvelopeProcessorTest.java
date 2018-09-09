@@ -83,6 +83,9 @@ public final class GenerateEnvelopeProcessorTest {
             .hasSourceEquivalentTo(
                 JavaFileObjects.forSourceLines(
                     "AnInterfaceEnvelope",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
@@ -114,6 +117,9 @@ public final class GenerateEnvelopeProcessorTest {
                 JavaFileObjects.forSourceLines(
                     "a.complex.package.AnInterfaceEnvelope",
                     "package a.complex.pkg;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "}"
@@ -144,6 +150,9 @@ public final class GenerateEnvelopeProcessorTest {
                 JavaFileObjects.forSourceLines(
                     "a.pkg.AClassAnInnerInterfaceEnvelope",
                     "package a.pkg",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AClassAnInnerInterfaceEnvelope implements AClass.AnInnerInterface {",
                     "  protected final AClass.AnInnerInterface wrapped;",
@@ -177,6 +186,9 @@ public final class GenerateEnvelopeProcessorTest {
                 JavaFileObjects.forSourceLines(
                     "AnInterfaceEnvelope",
                     "import java.lang.Override;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
@@ -214,6 +226,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "AnInterfaceEnvelope",
                     "import java.lang.Exception;",
                     "import java.lang.Override;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
@@ -251,6 +266,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "AnInterfaceEnvelope",
                     "import java.lang.Override;",
                     "import java.lang.String;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
@@ -287,6 +305,9 @@ public final class GenerateEnvelopeProcessorTest {
                 JavaFileObjects.forSourceLines(
                     "AnInterfaceEnvelope",
                     "import java.lang.Override;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
@@ -324,6 +345,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "AnInterfaceEnvelope",
                     "import java.lang.Override;",
                     "import java.lang.String;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
@@ -357,6 +381,9 @@ public final class GenerateEnvelopeProcessorTest {
             .hasSourceEquivalentTo(
                 JavaFileObjects.forSourceLines(
                     "AnInterfaceEnvelope",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope<A> implements AnInterface<A> {",
                     "  protected final AnInterface<A> wrapped;",
@@ -388,6 +415,9 @@ public final class GenerateEnvelopeProcessorTest {
                 JavaFileObjects.forSourceLines(
                     "AnInterfaceEnvelope",
                     "import java.util.List;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope<B, A extends List<B>> implements AnInterface<B, A> {",
                     "}"
@@ -416,6 +446,9 @@ public final class GenerateEnvelopeProcessorTest {
                 JavaFileObjects.forSourceLines(
                     "AnInterface",
                     "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     "@GenerateEnvelope",
                     "public interface AnInterface extends ASuperInterface {",
                     "  void test3();",
@@ -431,6 +464,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "import java.lang.Exception;",
                     "import java.lang.Override;",
                     "import java.lang.String;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
@@ -490,6 +526,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "AnInterfaceEnvelope",
                     "import java.lang.Override;",
                     "import java.lang.String;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
@@ -548,6 +587,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "AnInterfaceEnvelope",
                     "import java.lang.Override;",
                     "import java.lang.String;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
@@ -597,6 +639,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "AnInterfaceEnvelope",
                     "import java.lang.Override;",
                     "import java.lang.String;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
@@ -644,6 +689,9 @@ public final class GenerateEnvelopeProcessorTest {
                 JavaFileObjects.forSourceLines(
                     "AnInterfaceEnvelope",
                     "import java.lang.Override;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope<B> implements AnInterface<B> {",
                     "  protected final AnInterface<B> wrapped;",
@@ -689,6 +737,9 @@ public final class GenerateEnvelopeProcessorTest {
                     "import java.util.Iterator;",
                     "import java.util.Spliterator;",
                     "import java.util.function.Consumer;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
                     // @checkstyle LineLengthCheck (1 line)
                     "public abstract class AnInterfaceEnvelope implements AnInterface {",
                     "  protected final AnInterface wrapped;",
