@@ -4,6 +4,7 @@
 # Elegant Objects Envelopes
 
 Distributed under the GPL 3.0.
+
 Note that the output of the processor is not covered by this license and can be used without any restrictions.
 
 ## Why
@@ -124,7 +125,9 @@ import java.lang.Double;
 import java.lang.Exception;
 import java.lang.Override;
 import java.lang.String;
+import javax.annotation.Generated;
 
+@Generated("com.github.victornoel.eo.apt.GenerateEnvelopeProcessor")
 public abstract class AClassTestEnvelope implements AClass.Test {
   protected final AClass.Test wrapped;
 
