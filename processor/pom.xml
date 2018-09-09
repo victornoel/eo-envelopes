@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.github.victornoel.eo</groupId>
         <artifactId>eo-envelopes-parent</artifactId>
-        <version>0.0.4</version>
+        <version>0.0.5-SNAPSHOT</version>
     </parent>
 
     <name>EO Envelopes Processor</name>
