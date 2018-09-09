@@ -12,23 +12,46 @@ See http://www.yegor256.com/2017/01/31/decorating-envelopes.html for an explanat
 
 ## How
 
+For the latest version, see the Maven Central badge at the top, SNAPSHOTs are deployed to OSS Sonatype.
+
 Add the following dependency:
 
 ```xml
 <dependency>
-    <groupId>com.github.victornoel.eo</groupId>
-    <artifactId>eo-envelopes</artifactId>
-    <version><!-- See the Maven Central badge at the top, SNAPSHOTs are deployed to OSS Sonatype --></version>
-    <scope>provided</scope>
+  <groupId>com.github.victornoel.eo</groupId>
+  <artifactId>eo-envelopes-annotations</artifactId>
+  <version><!-- Version --></version>
+  <scope>provided</scope>
 </dependency>
+```
+
+And the processor:
+
+```xml
+<build>
+  <pluginManagement>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <annotationProcessorPath>
+              <groupId>com.github.victornoel.eo</groupId>
+              <artifactId>eo-envelopes</artifactId>
+              <version><!-- Version --></version>
+            </annotationProcessorPath>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+    </plugins>
+  </pluginManagement>
+</build>
 ```
 
 Enable Annotation Processing in your IDE to take advantage of it during development.
 
 Simply annotate your interfaces with `@GenerateEnvelope` and an envelope class will be generated for it.
 You can now extend it to write a decorating envelope without managing the delegation yourself.
-
-See at the bottom for unsupported features.
 
 ## What
 

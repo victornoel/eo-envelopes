@@ -18,6 +18,7 @@
 
 package com.github.victornoel.eo.apt;
 
+import com.google.auto.common.GeneratedAnnotationSpecs;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
 import com.squareup.javapoet.CodeBlock;
@@ -99,7 +100,7 @@ public final class GeneratedEnvelopeTypeSpec {
         final ParameterSpec parameter = ParameterSpec
             .builder(type, wrapped)
             .build();
-        return TypeSpec.classBuilder(this.name)
+        final TypeSpec.Builder builder = TypeSpec.classBuilder(this.name)
             .addOriginatingElement(this.source)
             .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
             .addSuperinterface(type)
@@ -116,8 +117,13 @@ public final class GeneratedEnvelopeTypeSpec {
                 .addStatement("this.$N = $N", field, parameter)
                 .build()
             )
-            .addMethods(new DelegatingMethods(field).get())
-            .build();
+            .addMethods(new DelegatingMethods(field).get());
+        GeneratedAnnotationSpecs.generatedAnnotationSpec(
+            this.procenv.getElementUtils(),
+            this.procenv.getSourceVersion(),
+            GenerateEnvelopeProcessor.class
+        ).ifPresent(builder::addAnnotation);
+        return builder.build();
     }
 
     /**
