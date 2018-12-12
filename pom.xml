@@ -5,7 +5,7 @@
 
     <groupId>com.github.victornoel.eo</groupId>
     <artifactId>eo-envelopes-parent</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>EO Envelopes</name>
@@ -47,7 +47,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-    
+
     <modules>
         <module>processor</module>
         <module>annotations</module>
@@ -80,15 +80,34 @@
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
                     <compilerArgs>
-                        <arg>-Xlint</arg>
                         <arg>-Werror</arg>
-                        <!-- because of https://bugs.openjdk.java.net/browse/JDK-6999068 -->
-                        <arg>-Xlint:-processing</arg>
+                        <!-- -processing because of https://bugs.openjdk.java.net/browse/JDK-6999068 -->
+                        <arg>-Xlint:all,-processing</arg>
                     </compilerArgs>
                     <testExcludes>
                         <exclude>**/package-info.java</exclude>
                     </testExcludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0-M2</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.6</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -153,7 +172,7 @@
                     <plugin>
                         <groupId>com.qulice</groupId>
                         <artifactId>qulice-maven-plugin</artifactId>
-                        <version>0.18.2</version>
+                        <version>0.18.5</version>
                         <configuration>
                             <license>file:${basedir}/../LICENSE.txt</license>
                             <excludes>
