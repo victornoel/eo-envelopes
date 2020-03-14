@@ -37,7 +37,7 @@ import javax.tools.Diagnostic.Kind;
 /**
  * A processor to generate envelopes from {@link GenerateEnvelope}.
  *
- * @since 0.0.1
+ * @since 1.0.0
  */
 @AutoService(javax.annotation.processing.Processor.class)
 public final class GenerateEnvelopeProcessor extends AbstractProcessor {

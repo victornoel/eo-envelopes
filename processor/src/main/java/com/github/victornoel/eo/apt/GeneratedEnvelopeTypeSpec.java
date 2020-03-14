@@ -41,7 +41,7 @@ import javax.lang.model.type.TypeKind;
 /**
  * The generated code of a generated envelope.
  *
- * @since 0.0.1
+ * @since 1.0.0
  */
 public final class GeneratedEnvelopeTypeSpec {
 
@@ -128,6 +128,8 @@ public final class GeneratedEnvelopeTypeSpec {
 
     /**
      * Generated delegating methods.
+     *
+     * @since 1.0.0
      */
     private final class DelegatingMethods
         implements Supplier<Iterable<MethodSpec>> {
@@ -180,6 +182,8 @@ public final class GeneratedEnvelopeTypeSpec {
 
     /**
      * One generated delegating method.
+     *
+     * @since 1.0.0
      */
     private final class DelegatingMethod implements Supplier<MethodSpec> {
 
