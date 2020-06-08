@@ -136,4 +136,115 @@ public final class GenerateEnvelopeProcessorGenericTest {
                 )
             );
     }
+
+    @Test
+    public void samInterfaceHandlesMultipleCollisionsTwoLetters() {
+        final Compilation compilation = Compiler.javac()
+            .withProcessors(new GenerateEnvelopeProcessor())
+            .compile(
+                JavaFileObjects.forSourceLines(
+                    "Foo",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "import java.util.function.Supplier;",
+                    "@GenerateEnvelope(generic = true)",
+                    "public interface Foo<W> { <V> W get(V x); };"
+                )
+            );
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        CompilationSubject.assertThat(compilation)
+            .generatedSourceFile("FooEnvelope")
+            .hasSourceEquivalentTo(
+                JavaFileObjects.forSourceLines(
+                    "FooEnvelope",
+                    "import java.lang.Override;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
+                    "public abstract class FooEnvelope<W, U extends Foo<W>> implements Foo<W> {",
+                    "  protected final U wrapped;",
+                    "  public FooEnvelope(U wrapped) {",
+                    "    this.wrapped = wrapped;",
+                    "  }",
+                    "  @Override",
+                    "  public final <V> W get(V x) { ",
+                    "   return wrapped.get(x);",
+                    "  }",
+                    "}"
+                )
+            );
+    }
+
+    @Test
+    public void samInterfaceHandlesMultipleCollisions() {
+        final Compilation compilation = Compiler.javac()
+            .withProcessors(new GenerateEnvelopeProcessor())
+            .compile(
+                JavaFileObjects.forSourceLines(
+                    "Foo",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "import java.util.function.Supplier;",
+                    "@GenerateEnvelope(generic = true)",
+                    "public interface Foo<W> { <V> W get(V x); };"
+                )
+            );
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        CompilationSubject.assertThat(compilation)
+            .generatedSourceFile("FooEnvelope")
+            .hasSourceEquivalentTo(
+                JavaFileObjects.forSourceLines(
+                    "FooEnvelope",
+                    "import java.lang.Override;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
+                    "public abstract class FooEnvelope<W, U extends Foo<W>> implements Foo<W> {",
+                    "  protected final U wrapped;",
+                    "  public FooEnvelope(U wrapped) {",
+                    "    this.wrapped = wrapped;",
+                    "  }",
+                    "  @Override",
+                    "  public final <V> W get(V x) { ",
+                    "   return wrapped.get(x);",
+                    "  }",
+                    "}"
+                )
+            );
+    }
+
+    @Test
+    public void samInterfaceHandlesCollisionOfTypeParameters() {
+        final Compilation compilation = Compiler.javac()
+            .withProcessors(new GenerateEnvelopeProcessor())
+            .compile(
+                JavaFileObjects.forSourceLines(
+                    "Foo",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "import java.util.function.Supplier;",
+                    "@GenerateEnvelope(generic = true)",
+                    "public interface Foo<W> extends Supplier<W> { };"
+                )
+            );
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        CompilationSubject.assertThat(compilation)
+            .generatedSourceFile("FooEnvelope")
+            .hasSourceEquivalentTo(
+                JavaFileObjects.forSourceLines(
+                    "FooEnvelope",
+                    "import java.lang.Override;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
+                    "public abstract class FooEnvelope<W, V extends Foo<W>> implements Foo<W> {",
+                    "  protected final V wrapped;",
+                    "  public FooEnvelope(V wrapped) {",
+                    "    this.wrapped = wrapped;",
+                    "  }",
+                    "  @Override",
+                    "  public final W get() {",
+                    "   return wrapped.get();",
+                    "  }",
+                    "}"
+                )
+            );
+    }
 }

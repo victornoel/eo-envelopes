@@ -31,8 +31,11 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import java.util.Collection;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -95,7 +98,7 @@ public final class GeneratedEnvelopeTypeSpec {
     public TypeSpec typeSpec() throws Exception {
         final GenerateEnvelope annotation = this.source.getAnnotation(GenerateEnvelope.class);
         final TypeName spr = TypeName.get(this.source.asType());
-        final TypeVariableName type = TypeVariableName.get("W", spr);
+        final TypeVariableName type = TypeVariableName.get(this.genericTypeName(), spr);
         final TypeName prm;
         if (annotation.generic()) {
             prm = type;
@@ -139,6 +142,59 @@ public final class GeneratedEnvelopeTypeSpec {
     }
 
     /**
+     * Generic type parameter.
+     *
+     * @return Type parameter name
+     */
+    private String genericTypeName() {
+        final Set<String> occupied = Stream.of(
+            this.source.getTypeParameters()
+                .stream(),
+            this.localAndInheritedMethods()
+                .stream()
+                .flatMap(x -> x.getTypeParameters().stream())
+        )
+            .flatMap(Function.identity())
+            .map(x -> x.getSimpleName().toString())
+            .collect(Collectors.toSet());
+        return this.genericTypeName("W", occupied);
+    }
+
+    /**
+     * Local and inherited methods.
+     *
+     * @return Set of methods.
+     */
+    private Set<ExecutableElement> localAndInheritedMethods() {
+        return MoreElements.getLocalAndInheritedMethods(
+            this.source, this.procenv.getTypeUtils(), this.procenv.getElementUtils()
+        );
+    }
+
+    /**
+     * Generic type parameter.
+     *
+     * @param preferred Preferred name
+     * @param occupied Names already in use
+     * @return Type parameter name
+     */
+    private String genericTypeName(final String preferred, final Set<String> occupied) {
+        final String result;
+        if (occupied.contains(preferred)) {
+            final char[] chars = preferred.toCharArray();
+            chars[chars.length - 1] -= 1;
+            if (chars[chars.length - 1] < 'A') {
+                result = this.genericTypeName(preferred + preferred, occupied);
+            } else {
+                result = this.genericTypeName(String.valueOf(chars), occupied);
+            }
+        } else {
+            result = preferred;
+        }
+        return result;
+    }
+
+    /**
      * Generated delegating methods.
      *
      * @since 1.0.0
@@ -163,11 +219,7 @@ public final class GeneratedEnvelopeTypeSpec {
          */
         DelegatingMethods(final FieldSpec wrapped) {
             this(
-                MoreElements.getLocalAndInheritedMethods(
-                    GeneratedEnvelopeTypeSpec.this.source,
-                    GeneratedEnvelopeTypeSpec.this.procenv.getTypeUtils(),
-                    GeneratedEnvelopeTypeSpec.this.procenv.getElementUtils()
-                ),
+                GeneratedEnvelopeTypeSpec.this.localAndInheritedMethods(),
                 wrapped
             );
         }
