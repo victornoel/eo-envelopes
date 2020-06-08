@@ -18,6 +18,7 @@
 
 package com.github.victornoel.eo.apt;
 
+import com.github.victornoel.eo.GenerateEnvelope;
 import com.google.auto.common.GeneratedAnnotationSpecs;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
@@ -92,18 +93,26 @@ public final class GeneratedEnvelopeTypeSpec {
      * @throws Exception If fails
      */
     public TypeSpec typeSpec() throws Exception {
-        final TypeName type = TypeName.get(this.source.asType());
+        final GenerateEnvelope annotation = this.source.getAnnotation(GenerateEnvelope.class);
+        final TypeName spr = TypeName.get(this.source.asType());
+        final TypeVariableName type = TypeVariableName.get("W", spr);
+        final TypeName prm;
+        if (annotation.generic()) {
+            prm = type;
+        } else {
+            prm = spr;
+        }
         final String wrapped = "wrapped";
         final FieldSpec field = FieldSpec
-            .builder(type, wrapped, Modifier.PROTECTED, Modifier.FINAL)
+            .builder(prm, wrapped, Modifier.PROTECTED, Modifier.FINAL)
             .build();
         final ParameterSpec parameter = ParameterSpec
-            .builder(type, wrapped)
+            .builder(prm, wrapped)
             .build();
         final TypeSpec.Builder builder = TypeSpec.classBuilder(this.name)
             .addOriginatingElement(this.source)
             .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-            .addSuperinterface(type)
+            .addSuperinterface(spr)
             .addTypeVariables(
                 this.source.getTypeParameters()
                     .stream()
@@ -118,6 +127,9 @@ public final class GeneratedEnvelopeTypeSpec {
                 .build()
             )
             .addMethods(new DelegatingMethods(field).get());
+        if (annotation.generic()) {
+            builder.addTypeVariable(type);
+        }
         GeneratedAnnotationSpecs.generatedAnnotationSpec(
             this.procenv.getElementUtils(),
             this.procenv.getSourceVersion(),

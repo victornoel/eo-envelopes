@@ -31,4 +31,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface GenerateEnvelope {
+    /**
+     * Make Envelope accept generic wrapped object.
+     *
+     * @return True if generic.
+     */
+    boolean generic() default false;
 }
