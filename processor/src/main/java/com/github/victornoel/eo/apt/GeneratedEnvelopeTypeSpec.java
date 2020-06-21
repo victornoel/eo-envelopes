@@ -26,20 +26,20 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.NameAllocator;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import java.util.Collection;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeKind;
 
 /**
@@ -60,9 +60,14 @@ public final class GeneratedEnvelopeTypeSpec {
     private final String name;
 
     /**
+     * The name allocator.
+     */
+    private final NameAllocator allocator;
+
+    /**
      * The processing environment.
      */
-    private ProcessingEnvironment procenv;
+    private final ProcessingEnvironment procenv;
 
     /**
      * Ctor.
@@ -72,7 +77,12 @@ public final class GeneratedEnvelopeTypeSpec {
      */
     public GeneratedEnvelopeTypeSpec(final TypeElement source,
         final ProcessingEnvironment procenv) {
-        this(source, new GeneratedEnvelopeName(source).get(), procenv);
+        this(
+            source,
+            new GeneratedEnvelopeName(source).get(),
+            procenv,
+            new NameAllocator()
+        );
     }
 
     /**
@@ -81,12 +91,17 @@ public final class GeneratedEnvelopeTypeSpec {
      * @param source The source interface
      * @param name The name for the generated envelope
      * @param procenv The processing environment
+     * @param alloc The allocator of names
+     * @checkstyle ParameterNumberCheck (10 lines)
      */
     public GeneratedEnvelopeTypeSpec(final TypeElement source,
-        final String name, final ProcessingEnvironment procenv) {
+        final String name,
+        final ProcessingEnvironment procenv,
+        final NameAllocator alloc) {
         this.source = source;
         this.name = name;
         this.procenv = procenv;
+        this.allocator = alloc;
     }
 
     /**
@@ -96,9 +111,15 @@ public final class GeneratedEnvelopeTypeSpec {
      * @throws Exception If fails
      */
     public TypeSpec typeSpec() throws Exception {
+        for (final TypeParameterElement type : this.source.getTypeParameters()) {
+            this.allocator.newName(type.getSimpleName().toString());
+        }
+        for (final TypeParameterElement type : this.methodTypeParameters()) {
+            this.allocator.newName(type.getSimpleName().toString());
+        }
         final GenerateEnvelope annotation = this.source.getAnnotation(GenerateEnvelope.class);
         final TypeName spr = TypeName.get(this.source.asType());
-        final TypeVariableName type = TypeVariableName.get(this.genericTypeName(), spr);
+        final TypeVariableName type = TypeVariableName.get(this.allocator.newName("W"), spr);
         final TypeName prm;
         if (annotation.generic()) {
             prm = type;
@@ -142,22 +163,15 @@ public final class GeneratedEnvelopeTypeSpec {
     }
 
     /**
-     * Generic type parameter.
+     * Method type parameters.
      *
-     * @return Type parameter name
+     * @return Set of types.
      */
-    private String genericTypeName() {
-        final Set<String> occupied = Stream.of(
-            this.source.getTypeParameters()
-                .stream(),
-            this.localAndInheritedMethods()
-                .stream()
-                .flatMap(x -> x.getTypeParameters().stream())
-        )
-            .flatMap(Function.identity())
-            .map(x -> x.getSimpleName().toString())
+    private Set<TypeParameterElement> methodTypeParameters() {
+        return this.localAndInheritedMethods()
+            .stream()
+            .flatMap(elem -> elem.getTypeParameters().stream())
             .collect(Collectors.toSet());
-        return this.genericTypeName("W", occupied);
     }
 
     /**
@@ -169,29 +183,6 @@ public final class GeneratedEnvelopeTypeSpec {
         return MoreElements.getLocalAndInheritedMethods(
             this.source, this.procenv.getTypeUtils(), this.procenv.getElementUtils()
         );
-    }
-
-    /**
-     * Generic type parameter.
-     *
-     * @param preferred Preferred name
-     * @param occupied Names already in use
-     * @return Type parameter name
-     */
-    private String genericTypeName(final String preferred, final Set<String> occupied) {
-        final String result;
-        if (occupied.contains(preferred)) {
-            final char[] chars = preferred.toCharArray();
-            chars[chars.length - 1] -= 1;
-            if (chars[chars.length - 1] < 'A') {
-                result = this.genericTypeName(preferred + preferred, occupied);
-            } else {
-                result = this.genericTypeName(String.valueOf(chars), occupied);
-            }
-        } else {
-            result = preferred;
-        }
-        return result;
     }
 
     /**

@@ -147,7 +147,7 @@ public final class GenerateEnvelopeProcessorGenericTest {
                     "import com.github.victornoel.eo.GenerateEnvelope;",
                     "import java.util.function.Supplier;",
                     "@GenerateEnvelope(generic = true)",
-                    "public interface Foo<W> { <V> W get(V x); };"
+                    "public interface Foo<W> { <W_> W get(W_ x); };"
                 )
             );
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
@@ -160,13 +160,13 @@ public final class GenerateEnvelopeProcessorGenericTest {
                     "import javax.annotation.Generated;",
                     // @checkstyle LineLengthCheck (1 line)
                     "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
-                    "public abstract class FooEnvelope<W, U extends Foo<W>> implements Foo<W> {",
-                    "  protected final U wrapped;",
-                    "  public FooEnvelope(U wrapped) {",
+                    "public abstract class FooEnvelope<W, W__ extends Foo<W>> implements Foo<W> {",
+                    "  protected final W__ wrapped;",
+                    "  public FooEnvelope(W__ wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
                     "  @Override",
-                    "  public final <V> W get(V x) { ",
+                    "  public final <W_> W get(W_ x) { ",
                     "   return wrapped.get(x);",
                     "  }",
                     "}"
@@ -184,7 +184,7 @@ public final class GenerateEnvelopeProcessorGenericTest {
                     "import com.github.victornoel.eo.GenerateEnvelope;",
                     "import java.util.function.Supplier;",
                     "@GenerateEnvelope(generic = true)",
-                    "public interface Foo<W> { <V> W get(V x); };"
+                    "public interface Foo<W> { <W_> W get(W_ x); };"
                 )
             );
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
@@ -197,13 +197,13 @@ public final class GenerateEnvelopeProcessorGenericTest {
                     "import javax.annotation.Generated;",
                     // @checkstyle LineLengthCheck (1 line)
                     "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
-                    "public abstract class FooEnvelope<W, U extends Foo<W>> implements Foo<W> {",
-                    "  protected final U wrapped;",
-                    "  public FooEnvelope(U wrapped) {",
+                    "public abstract class FooEnvelope<W, W__ extends Foo<W>> implements Foo<W> {",
+                    "  protected final W__ wrapped;",
+                    "  public FooEnvelope(W__ wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
                     "  @Override",
-                    "  public final <V> W get(V x) { ",
+                    "  public final <W_> W get(W_ x) { ",
                     "   return wrapped.get(x);",
                     "  }",
                     "}"
@@ -234,9 +234,9 @@ public final class GenerateEnvelopeProcessorGenericTest {
                     "import javax.annotation.Generated;",
                     // @checkstyle LineLengthCheck (1 line)
                     "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
-                    "public abstract class FooEnvelope<W, V extends Foo<W>> implements Foo<W> {",
-                    "  protected final V wrapped;",
-                    "  public FooEnvelope(V wrapped) {",
+                    "public abstract class FooEnvelope<W, W_ extends Foo<W>> implements Foo<W> {",
+                    "  protected final W_ wrapped;",
+                    "  public FooEnvelope(W_ wrapped) {",
                     "    this.wrapped = wrapped;",
                     "  }",
                     "  @Override",
