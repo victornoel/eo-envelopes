@@ -18,7 +18,6 @@
 
 package com.github.victornoel.eo.apt;
 
-import java.util.function.Supplier;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
@@ -28,7 +27,7 @@ import javax.lang.model.element.TypeElement;
  *
  * @since 1.0.0
  */
-public final class GeneratedEnvelopeName implements Supplier<String> {
+public final class GeneratedEnvelopeName implements Names {
 
     /**
      * The source interface.
@@ -55,16 +54,23 @@ public final class GeneratedEnvelopeName implements Supplier<String> {
      * @param source The source interface
      * @param suffix The suffix to append to the name
      */
-    public GeneratedEnvelopeName(final TypeElement source,
-        final String suffix) {
+    public GeneratedEnvelopeName(
+        final TypeElement source,
+        final String suffix
+    ) {
         this.source = source;
         this.suffix = suffix;
     }
 
     @Override
+    public String make() {
+        return this.make(this.suffix);
+    }
+
+    @Override
     @SuppressWarnings("PMD.UseStringBufferForStringAppends")
-    public String get() {
-        String name = this.source.getSimpleName() + this.suffix;
+    public String make(final String preferred) {
+        String name = this.source.getSimpleName() + preferred;
         Element parent = this.source.getEnclosingElement();
         while (parent.getKind() != ElementKind.PACKAGE) {
             name = parent.getSimpleName() + name;
