@@ -20,10 +20,6 @@ package com.github.victornoel.eo.apt;
 
 import com.github.victornoel.eo.GenerateEnvelope;
 import com.google.auto.common.GeneratedAnnotationSpecs;
-import com.google.auto.common.MoreElements;
-import com.google.auto.common.MoreTypes;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.NameAllocator;
@@ -31,16 +27,10 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import java.util.Collection;
-import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
-import javax.lang.model.type.TypeKind;
 
 /**
  * The generated code of a generated envelope.
@@ -57,12 +47,12 @@ public final class GeneratedEnvelopeTypeSpec {
     /**
      * The name for the generated envelope.
      */
-    private final String name;
+    private final Names name;
 
     /**
-     * The name allocator.
+     * The allocated names.
      */
-    private final NameAllocator allocator;
+    private final Names allocated;
 
     /**
      * The processing environment.
@@ -75,13 +65,19 @@ public final class GeneratedEnvelopeTypeSpec {
      * @param source The source interface
      * @param procenv The processing environment
      */
-    public GeneratedEnvelopeTypeSpec(final TypeElement source,
-        final ProcessingEnvironment procenv) {
+    public GeneratedEnvelopeTypeSpec(
+        final TypeElement source,
+        final ProcessingEnvironment procenv
+    ) {
         this(
             source,
-            new GeneratedEnvelopeName(source).get(),
+            new GeneratedEnvelopeName(source),
             procenv,
-            new NameAllocator()
+            new AllocatedNames(
+                new NameAllocator(),
+                source,
+                new LocalMethods(source, procenv)
+            )
         );
     }
 
@@ -91,17 +87,19 @@ public final class GeneratedEnvelopeTypeSpec {
      * @param source The source interface
      * @param name The name for the generated envelope
      * @param procenv The processing environment
-     * @param alloc The allocator of names
+     * @param allocated The allocator of names
      * @checkstyle ParameterNumberCheck (10 lines)
      */
-    public GeneratedEnvelopeTypeSpec(final TypeElement source,
-        final String name,
+    public GeneratedEnvelopeTypeSpec(
+        final TypeElement source,
+        final Names name,
         final ProcessingEnvironment procenv,
-        final NameAllocator alloc) {
+        final Names allocated
+    ) {
         this.source = source;
         this.name = name;
         this.procenv = procenv;
-        this.allocator = alloc;
+        this.allocated = allocated;
     }
 
     /**
@@ -111,15 +109,14 @@ public final class GeneratedEnvelopeTypeSpec {
      * @throws Exception If fails
      */
     public TypeSpec typeSpec() throws Exception {
-        for (final TypeParameterElement type : this.source.getTypeParameters()) {
-            this.allocator.newName(type.getSimpleName().toString());
-        }
-        for (final TypeParameterElement type : this.methodTypeParameters()) {
-            this.allocator.newName(type.getSimpleName().toString());
-        }
-        final GenerateEnvelope annotation = this.source.getAnnotation(GenerateEnvelope.class);
+        final GenerateEnvelope annotation = this.source.getAnnotation(
+            GenerateEnvelope.class
+        );
         final TypeName spr = TypeName.get(this.source.asType());
-        final TypeVariableName type = TypeVariableName.get(this.allocator.newName("W"), spr);
+        final TypeVariableName type = TypeVariableName.get(
+            this.allocated.make(),
+            spr
+        );
         final TypeName prm;
         if (annotation.generic()) {
             prm = type;
@@ -133,7 +130,7 @@ public final class GeneratedEnvelopeTypeSpec {
         final ParameterSpec parameter = ParameterSpec
             .builder(prm, wrapped)
             .build();
-        final TypeSpec.Builder builder = TypeSpec.classBuilder(this.name)
+        final TypeSpec.Builder builder = TypeSpec.classBuilder(this.name.make())
             .addOriginatingElement(this.source)
             .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
             .addSuperinterface(spr)
@@ -150,7 +147,7 @@ public final class GeneratedEnvelopeTypeSpec {
                 .addStatement("this.$N = $N", field, parameter)
                 .build()
             )
-            .addMethods(new DelegatingMethods(field).get());
+            .addMethods(new DelegatingMethods(field, this.procenv, this.source));
         if (annotation.generic()) {
             builder.addTypeVariable(type);
         }
@@ -160,146 +157,5 @@ public final class GeneratedEnvelopeTypeSpec {
             GenerateEnvelopeProcessor.class
         ).ifPresent(builder::addAnnotation);
         return builder.build();
-    }
-
-    /**
-     * Method type parameters.
-     *
-     * @return Set of types.
-     */
-    private Set<TypeParameterElement> methodTypeParameters() {
-        return this.localAndInheritedMethods()
-            .stream()
-            .flatMap(elem -> elem.getTypeParameters().stream())
-            .collect(Collectors.toSet());
-    }
-
-    /**
-     * Local and inherited methods.
-     *
-     * @return Set of methods.
-     */
-    private Set<ExecutableElement> localAndInheritedMethods() {
-        return MoreElements.getLocalAndInheritedMethods(
-            this.source, this.procenv.getTypeUtils(), this.procenv.getElementUtils()
-        );
-    }
-
-    /**
-     * Generated delegating methods.
-     *
-     * @since 1.0.0
-     */
-    private final class DelegatingMethods
-        implements Supplier<Iterable<MethodSpec>> {
-
-        /**
-         * The methods to delegate.
-         */
-        private final Collection<ExecutableElement> sources;
-
-        /**
-         * The field to delegate to.
-         */
-        private final FieldSpec wrapped;
-
-        /**
-         * Ctor.
-         *
-         * @param wrapped The field to delegate to
-         */
-        DelegatingMethods(final FieldSpec wrapped) {
-            this(
-                GeneratedEnvelopeTypeSpec.this.localAndInheritedMethods(),
-                wrapped
-            );
-        }
-
-        /**
-         * Ctor.
-         *
-         * @param sources The methods to delegate
-         * @param wrapped The field to delegate to
-         */
-        DelegatingMethods(final Collection<ExecutableElement> sources,
-            final FieldSpec wrapped) {
-            this.sources = sources;
-            this.wrapped = wrapped;
-        }
-
-        @Override
-        public Iterable<MethodSpec> get() {
-            return this.sources.stream()
-                .map(m -> new DelegatingMethod(m, this.wrapped).get())
-                .collect(Collectors.toList());
-        }
-    }
-
-    /**
-     * One generated delegating method.
-     *
-     * @since 1.0.0
-     */
-    private final class DelegatingMethod implements Supplier<MethodSpec> {
-
-        /**
-         * The method to delegate.
-         */
-        private final ExecutableElement method;
-
-        /**
-         * The field to delegate to.
-         */
-        private final FieldSpec wrapped;
-
-        /**
-         * Ctor.
-         *
-         * @param method The method to delegate
-         * @param wrapped The field to delegate to
-         */
-        DelegatingMethod(final ExecutableElement method,
-            final FieldSpec wrapped) {
-            this.method = method;
-            this.wrapped = wrapped;
-        }
-
-        @Override
-        public MethodSpec get() {
-            return MethodSpec
-                .overriding(
-                    this.method,
-                    MoreTypes.asDeclared(
-                        GeneratedEnvelopeTypeSpec.this.source.asType()
-                    ),
-                    GeneratedEnvelopeTypeSpec.this.procenv.getTypeUtils()
-                )
-                .addModifiers(Modifier.FINAL)
-                .addStatement(this.delegation())
-                .build();
-        }
-
-        /**
-         * The actual delegation to the field.
-         *
-         * @return The delegation code
-         */
-        private CodeBlock delegation() {
-            Builder statement = CodeBlock.builder();
-            if (this.method.getReturnType().getKind() != TypeKind.VOID) {
-                statement = statement.add("return ");
-            }
-            return statement
-                .add("$N.$N", this.wrapped, this.method.getSimpleName())
-                .add("(")
-                .add(this.method
-                    .getParameters()
-                    .stream()
-                    .map(ps -> CodeBlock.of("$N", ParameterSpec.get(ps)))
-                    .collect(CodeBlock.joining(","))
-                )
-                .add(")")
-                .build();
-        }
     }
 }
