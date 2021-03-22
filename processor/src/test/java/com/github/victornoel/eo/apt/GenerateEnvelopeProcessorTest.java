@@ -763,4 +763,50 @@ public final class GenerateEnvelopeProcessorTest {
                 )
             );
     }
+
+    /**
+     * See https://github.com/victornoel/eo-envelopes/pull/13#issuecomment-646987325.
+     */
+    @Test
+    public void selfReferencingInterface() {
+        final Compilation compilation = Compiler.javac()
+            .withProcessors(new GenerateEnvelopeProcessor())
+            .compile(
+                JavaFileObjects.forSourceLines(
+                    "Self",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
+                    "interface Self<T extends Self<T>> {}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "Impl",
+                    "class Impl implements Self<Impl> {}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "Wrap1",
+                    "class Wrap1<T extends Self<T>> extends SelfEnvelope<T> {",
+                    "    public Wrap1(final Self<T> wrapped) {",
+                    "        super(wrapped);",
+                    "    }",
+                    "}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "Wrap2",
+                    "class Wrap2<T extends Self<T>> extends SelfEnvelope<T> {",
+                    "    public Wrap2(final Self<T> wrapped) {",
+                    "        super(wrapped);",
+                    "    }",
+                    "}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "Test",
+                    "class Test {",
+                    "    public void test() {",
+                    "        final Self<Impl> env4 = new Wrap1(new Wrap2(new Wrap1(new Impl())));",
+                    "    }",
+                    "}"
+                )
+            );
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+    }
 }
