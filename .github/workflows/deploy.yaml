@@ -1,0 +1,43 @@
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+
+jobs:
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Java 8 with ORSSH
+        uses: actions/setup-java@v2
+        with:
+          java-version: 8
+          distribution: temurin
+          server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
+          server-username: OSSRH_USERNAME # env variable for username in deploy
+          server-password: OSSRH_PASSWORD # env variable for token in deploy
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }} # Value of the GPG private key to import
+          gpg-passphrase: GPG_PASSPHRASE # env variable for GPG private key passphrase
+      - name: Get Version
+        id: get-version
+        run: echo "::set-output name=version::$(.github/version.sh)"
+      - name: Publish SNAPSHOT to OSS Sonatype
+        if: ${{ endsWith(steps.get-version.outputs.version, '-SNAPSHOT') }}
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        shell: bash
+        run: .github/maven.sh deploy
+      - name: Publish RELEASE to Apache Maven Central
+        if: ${{ !endsWith(steps.get-version.outputs.version, '-SNAPSHOT') }}
+        shell: bash
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+           [[ "${{ "refs/tags/v${{ steps.get-version.outputs.version }}" == "${{ github.ref }}" ]] || exit 1
+           .github/maven.sh -Prelease deploy
