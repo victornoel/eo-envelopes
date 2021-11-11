@@ -30,6 +30,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -66,8 +67,9 @@ public final class GeneratedEnvelopeTypeSpec {
      * @param source The source interface
      * @param procenv The processing environment
      */
-    public GeneratedEnvelopeTypeSpec(final TypeElement source,
-        final ProcessingEnvironment procenv) {
+    public GeneratedEnvelopeTypeSpec(
+        final TypeElement source, final ProcessingEnvironment procenv
+    ) {
         this(source, new GeneratedEnvelopeName(source).get(), procenv);
     }
 
@@ -78,8 +80,9 @@ public final class GeneratedEnvelopeTypeSpec {
      * @param name The name for the generated envelope
      * @param procenv The processing environment
      */
-    public GeneratedEnvelopeTypeSpec(final TypeElement source,
-        final String name, final ProcessingEnvironment procenv) {
+    public GeneratedEnvelopeTypeSpec(
+        final TypeElement source, final String name, final ProcessingEnvironment procenv
+    ) {
         this.source = source;
         this.name = name;
         this.procenv = procenv;
@@ -117,7 +120,7 @@ public final class GeneratedEnvelopeTypeSpec {
                 .addStatement("this.$N = $N", field, parameter)
                 .build()
             )
-            .addMethods(new DelegatingMethods(field).get());
+            .addMethods(new DelegatingMethods(field));
         GeneratedAnnotationSpecs.generatedAnnotationSpec(
             this.procenv.getElementUtils(),
             this.procenv.getSourceVersion(),
@@ -131,8 +134,7 @@ public final class GeneratedEnvelopeTypeSpec {
      *
      * @since 1.0.0
      */
-    private final class DelegatingMethods
-        implements Supplier<Iterable<MethodSpec>> {
+    private final class DelegatingMethods implements Iterable<MethodSpec> {
 
         /**
          * The methods to delegate.
@@ -166,17 +168,18 @@ public final class GeneratedEnvelopeTypeSpec {
          * @param sources The methods to delegate
          * @param wrapped The field to delegate to
          */
-        DelegatingMethods(final Collection<ExecutableElement> sources,
-            final FieldSpec wrapped) {
+        DelegatingMethods(
+            final Collection<ExecutableElement> sources, final FieldSpec wrapped
+        ) {
             this.sources = sources;
             this.wrapped = wrapped;
         }
 
         @Override
-        public Iterable<MethodSpec> get() {
+        public Iterator<MethodSpec> iterator() {
             return this.sources.stream()
                 .map(m -> new DelegatingMethod(m, this.wrapped).get())
-                .collect(Collectors.toList());
+                .iterator();
         }
     }
 
