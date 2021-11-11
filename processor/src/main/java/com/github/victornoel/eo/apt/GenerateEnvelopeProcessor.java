@@ -53,8 +53,10 @@ public final class GenerateEnvelopeProcessor extends AbstractProcessor {
     }
 
     @Override
-    public boolean process(final Set<? extends TypeElement> annotations,
-        final RoundEnvironment env) {
+    public boolean process(
+        final Set<? extends TypeElement> annotations,
+        final RoundEnvironment env
+    ) {
         env.getElementsAnnotatedWith(GenerateEnvelope.class)
             .forEach(this::process);
         return true;

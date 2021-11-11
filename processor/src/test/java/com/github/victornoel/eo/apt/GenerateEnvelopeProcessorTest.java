@@ -553,6 +553,57 @@ public final class GenerateEnvelopeProcessorTest {
     }
 
     @Test
+    public void delegatesMethodsOfMultipleOverridingGenericSuperInterfaces() {
+        final Compilation compilation = Compiler.javac()
+            .withProcessors(new GenerateEnvelopeProcessor())
+            .compile(
+                JavaFileObjects.forSourceLines(
+                    "ASuperInterface1",
+                    "public interface ASuperInterface1 {",
+                    "  Double test();",
+                    "}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "ASuperInterface2",
+                    "public interface ASuperInterface2 {",
+                    "  Number test();",
+                    "}"
+                ),
+                JavaFileObjects.forSourceLines(
+                    "AnInterface",
+                    "import com.github.victornoel.eo.GenerateEnvelope;",
+                    "@GenerateEnvelope",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "public interface AnInterface extends ASuperInterface1, ASuperInterface2 {}"
+                )
+            );
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        CompilationSubject.assertThat(compilation)
+            .generatedSourceFile("AnInterfaceEnvelope")
+            .hasSourceEquivalentTo(
+                JavaFileObjects.forSourceLines(
+                    "AnInterfaceEnvelope",
+                    "import java.lang.Double;",
+                    "import java.lang.Override;",
+                    "import javax.annotation.Generated;",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "@Generated(\"com.github.victornoel.eo.apt.GenerateEnvelopeProcessor\")",
+                    // @checkstyle LineLengthCheck (1 line)
+                    "public abstract class AnInterfaceEnvelope implements AnInterface {",
+                    "  protected final AnInterface wrapped;",
+                    "  public AnInterfaceEnvelope(AnInterface wrapped) {",
+                    "    this.wrapped = wrapped;",
+                    "  }",
+                    "  @Override",
+                    "  public final Double test() {",
+                    "    return wrapped.test();",
+                    "  }",
+                    "}"
+                )
+            );
+    }
+
+    @Test
     public void delegatesMethodsOfSuperInterfacesOnlyOnce() {
         final Compilation compilation = Compiler.javac()
             .withProcessors(new GenerateEnvelopeProcessor())

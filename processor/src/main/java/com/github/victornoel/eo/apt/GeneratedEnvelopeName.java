@@ -55,8 +55,9 @@ public final class GeneratedEnvelopeName implements Supplier<String> {
      * @param source The source interface
      * @param suffix The suffix to append to the name
      */
-    public GeneratedEnvelopeName(final TypeElement source,
-        final String suffix) {
+    public GeneratedEnvelopeName(
+        final TypeElement source, final String suffix
+    ) {
         this.source = source;
         this.suffix = suffix;
     }

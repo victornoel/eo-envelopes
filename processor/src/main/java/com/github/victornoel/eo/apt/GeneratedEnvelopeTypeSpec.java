@@ -21,6 +21,7 @@ package com.github.victornoel.eo.apt;
 import com.google.auto.common.GeneratedAnnotationSpecs;
 import com.google.auto.common.MoreElements;
 import com.google.auto.common.MoreTypes;
+import com.google.auto.common.Visibility;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.CodeBlock.Builder;
 import com.squareup.javapoet.FieldSpec;
@@ -30,13 +31,17 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.util.Types;
 
 /**
  * The generated code of a generated envelope.
@@ -66,8 +71,9 @@ public final class GeneratedEnvelopeTypeSpec {
      * @param source The source interface
      * @param procenv The processing environment
      */
-    public GeneratedEnvelopeTypeSpec(final TypeElement source,
-        final ProcessingEnvironment procenv) {
+    public GeneratedEnvelopeTypeSpec(
+        final TypeElement source, final ProcessingEnvironment procenv
+    ) {
         this(source, new GeneratedEnvelopeName(source).get(), procenv);
     }
 
@@ -78,8 +84,9 @@ public final class GeneratedEnvelopeTypeSpec {
      * @param name The name for the generated envelope
      * @param procenv The processing environment
      */
-    public GeneratedEnvelopeTypeSpec(final TypeElement source,
-        final String name, final ProcessingEnvironment procenv) {
+    public GeneratedEnvelopeTypeSpec(
+        final TypeElement source, final String name, final ProcessingEnvironment procenv
+    ) {
         this.source = source;
         this.name = name;
         this.procenv = procenv;
@@ -117,7 +124,7 @@ public final class GeneratedEnvelopeTypeSpec {
                 .addStatement("this.$N = $N", field, parameter)
                 .build()
             )
-            .addMethods(new DelegatingMethods(field).get());
+            .addMethods(new DelegatingMethods(field));
         GeneratedAnnotationSpecs.generatedAnnotationSpec(
             this.procenv.getElementUtils(),
             this.procenv.getSourceVersion(),
@@ -131,8 +138,7 @@ public final class GeneratedEnvelopeTypeSpec {
      *
      * @since 1.0.0
      */
-    private final class DelegatingMethods
-        implements Supplier<Iterable<MethodSpec>> {
+    private final class DelegatingMethods implements Iterable<MethodSpec> {
 
         /**
          * The methods to delegate.
@@ -166,17 +172,50 @@ public final class GeneratedEnvelopeTypeSpec {
          * @param sources The methods to delegate
          * @param wrapped The field to delegate to
          */
-        DelegatingMethods(final Collection<ExecutableElement> sources,
-            final FieldSpec wrapped) {
+        DelegatingMethods(
+            final Collection<ExecutableElement> sources, final FieldSpec wrapped
+        ) {
             this.sources = sources;
             this.wrapped = wrapped;
         }
 
         @Override
-        public Iterable<MethodSpec> get() {
-            return this.sources.stream()
-                .map(m -> new DelegatingMethod(m, this.wrapped).get())
-                .collect(Collectors.toList());
+        public Iterator<MethodSpec> iterator() {
+            return this.sources.stream().collect(
+                LinkedList<ExecutableElement>::new,
+                (acc, e) -> {
+                    if (acc.stream().noneMatch(o -> o != e && this.overrides(o, e))) {
+                        acc.add(e);
+                    }
+                },
+                (acc1, acc2) -> acc1.addAll(acc2)
+            )
+            .stream()
+            .map(m -> new DelegatingMethod(m, this.wrapped).get())
+            .iterator();
+        }
+
+        /**
+         * Inspired by MoreElements.overrides but without any check about owning interfaces.
+         * See also https://github.com/google/auto/issues/825.
+         *
+         * @param overrider A potentially overriding method
+         * @param overridden A potentially overridden method
+         * @return The value {@code true} if {@code overrider} overrides {@code overridden}
+         */
+        private boolean overrides(
+            final ExecutableElement overrider, final ExecutableElement overridden
+        ) {
+            final Types types = GeneratedEnvelopeTypeSpec.this.procenv.getTypeUtils();
+            final DeclaredType type = MoreTypes.asDeclared(
+                GeneratedEnvelopeTypeSpec.this.source.asType()
+            );
+            return overrider.getSimpleName().equals(overridden.getSimpleName())
+                && Visibility.ofElement(overrider).compareTo(Visibility.ofElement(overridden)) >= 0
+                && types.isSubsignature(
+                    MoreTypes.asExecutable(types.asMemberOf(type, overrider)),
+                    MoreTypes.asExecutable(types.asMemberOf(type, overridden))
+                );
         }
     }
 
