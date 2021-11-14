@@ -17,7 +17,7 @@
  */
 
 /**
- * APT implementation of {@link GenerateEnvelope}.
+ * APT implementation of {@link com.github.victornoel.eo.GenerateEnvelope}.
  *
  * @since 0.0.1
  */
