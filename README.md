@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/victornoel/eo-envelopes.png?branch=master)](https://travis-ci.org/victornoel/eo-envelopes)
+![Build Status](https://github.com/victornoel/eo-envelopes/actions/workflows/build.yaml/badge.svg?branch=master)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.victornoel.eo/eo-envelopes.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.victornoel.eo%22%20AND%20a%3A%22eo-envelopes%22)
 
 # Elegant Objects Envelopes
