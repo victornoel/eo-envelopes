@@ -1,5 +1,6 @@
 ![Build Status](https://github.com/victornoel/eo-envelopes/actions/workflows/build.yaml/badge.svg?branch=master)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.victornoel.eo/eo-envelopes.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.victornoel.eo%22%20AND%20a%3A%22eo-envelopes%22)
+![OSS Sonatype](https://img.shields.io/nexus/s/com.github.victornoel.eo/eo-envelopes?server=https%3A%2F%2Foss.sonatype.org)
 
 # Elegant Objects Envelopes
 
