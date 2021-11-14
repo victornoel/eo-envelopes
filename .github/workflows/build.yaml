@@ -18,10 +18,10 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' && ((github.ref_type == 'branch' && github.ref_name == 'master') || (github.ref_type == 'tag' && startsWith(github.ref_name, 'v'))) }}
+    if: ${{ github.event_name == 'push' && ((github.ref_type == 'branch' && github.ref_name == 'master') || github.ref_type == 'tag') }}
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Java 8 with ORSSH
+      - name: Set up Java 8 with OSSRH
         uses: actions/setup-java@v2
         with:
           java-version: 8
@@ -35,21 +35,7 @@ jobs:
       - name: Get Version
         id: get-version
         run: echo "::set-output name=version::$(.github/version.sh)"
-      - name: Publish SNAPSHOT to OSS Sonatype
-        if: ${{ github.ref_type == 'branch' }}
-        env:
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          VERSION: ${{ steps.get-version.outputs.version }}
-        shell: bash
-        run: |
-          if [[ $VERSION != *"-SNAPSHOT" ]]; then
-            echo "Cannot deploy RELEASE to OSS Sonatype: $VERSION"
-            exit 1
-          fi
-          .github/maven.sh clean deploy
-      - name: Publish RELEASE to Apache Maven Central
-        if: ${{ github.ref_type == 'tag' }}
+      - name: Deploy
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
@@ -57,12 +43,20 @@ jobs:
           VERSION: ${{ steps.get-version.outputs.version }}
         shell: bash
         run: |
+          echo "Deploying Maven version $VERSION..."
           if [[ $VERSION == *"-SNAPSHOT" ]]; then
-            echo "Cannot deploy SNAPSHOT to Maven: $VERSION"
-            exit 1
-          fi
-          if [[ "v$VERSION" != $GITHUB_REF_NAME ]]; then
-            echo "$GITHUB_REF does not match the Maven version: $VERSION"
-            exit 1
+            if [[ $GITHUB_REF_TYPE != "branch" ]]; then
+              echo "... can only deploy SNAPSHOTs from branch, ref was $GITHUB_REF"
+              exit 1
+            fi
+          else
+            if [[ $GITHUB_REF_TYPE != "tag" ]]; then
+              echo "... can only deploy RELEASEs from tags, ref was $GITHUB_REF"
+              exit 1
+            fi
+            if [[ "v$VERSION" != $GITHUB_REF_NAME ]]; then
+              echo "... can only deploy RELEASEs that matches the Maven, expected v$VERSION, ref was $GITHUB_REF"
+              exit 1
+            fi
           fi
           .github/maven.sh -Prelease clean deploy
